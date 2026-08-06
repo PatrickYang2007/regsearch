@@ -65,9 +65,14 @@ CREATE TABLE IF NOT EXISTS citation_contexts (
     ctx_id        BIGSERIAL PRIMARY KEY,
     citing_doc_id BIGINT NOT NULL REFERENCES documents(doc_id) ON DELETE CASCADE,
     cited_doc_id  BIGINT NOT NULL REFERENCES documents(doc_id) ON DELETE CASCADE,
-    context_text  TEXT NOT NULL,              -- the citing sentence == pseudo-query
-    UNIQUE (citing_doc_id, cited_doc_id, md5(context_text))
+    context_text  TEXT NOT NULL               -- the citing sentence == pseudo-query
 );
+
+-- Dedup on the hash rather than the full text: a table-level UNIQUE constraint
+-- cannot contain an expression, and context_text can exceed the btree row
+-- limit. This index is also what ON CONFLICT targets on insert.
+CREATE UNIQUE INDEX IF NOT EXISTS citation_contexts_uniq_idx
+    ON citation_contexts (citing_doc_id, cited_doc_id, md5(context_text));
 
 CREATE INDEX IF NOT EXISTS citation_contexts_cited_idx ON citation_contexts (cited_doc_id);
 

@@ -2,7 +2,9 @@
 name = "regsearch"
 version = "0.1.0"
 description = "Hybrid retrieval + reranking over regulatory-genomics literature"
-requires-python = ">=3.11"
+# Upper bound is deliberate: torch and sentence-transformers have no 3.14
+# wheels, and uv otherwise resolves to the newest interpreter on the box.
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "httpx>=0.27",
     "tenacity>=8.3",

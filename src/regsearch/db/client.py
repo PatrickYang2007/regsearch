@@ -6,6 +6,7 @@ per-connection so `vector` columns round-trip as numpy arrays / lists.
 
 from __future__ import annotations
 
+import atexit
 import logging
 from collections.abc import Iterable, Sequence
 from contextlib import contextmanager
@@ -35,6 +36,11 @@ def get_pool() -> ConnectionPool:
     global _pool
     if _pool is None:
         s = get_settings()
+        # Close the pool at exit rather than leaving it to __del__. The pool's
+        # destructor joins its worker threads, which raises
+        # PythonFinalizationError if it runs during interpreter shutdown.
+        # atexit fires early enough that the join still succeeds.
+        atexit.register(close_pool)
         _pool = ConnectionPool(
             s.dsn,
             min_size=1,

@@ -32,7 +32,10 @@ class Settings(BaseSettings):
     # Unix socket by default: no TCP port collisions between users on a shared
     # node, and no listening socket exposed to the rest of the cluster.
     pg_host: str = str(PROJECT_ROOT / "data" / "run")
-    pg_port: int = 5433
+    # On a Unix socket the port is not a TCP port -- it selects the socket
+    # filename (.s.PGSQL.<port>). scripts/pg_start.sh must be started with the
+    # same value or the client looks for a socket that isn't there.
+    pg_port: int = 5432
     pg_user: str = "regsearch"
     pg_db: str = "regsearch"
     pg_password: str = "regsearch"

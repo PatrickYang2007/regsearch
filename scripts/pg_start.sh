@@ -20,6 +20,9 @@ PIDFILE="${RUNDIR}/postgres.pid"
 
 PGUSER_NAME="${REGSEARCH_PG_USER:-regsearch}"
 PGDB_NAME="${REGSEARCH_PG_DB:-regsearch}"
+# Must match Settings.pg_port: over a Unix socket this selects the socket
+# filename (.s.PGSQL.<port>), so a mismatch means the client finds nothing.
+PGPORT_NUM="${REGSEARCH_PG_PORT:-5432}"
 
 mkdir -p "${PGDATA}" "${RUNDIR}"
 chmod 700 "${PGDATA}"
@@ -57,6 +60,7 @@ fi
 echo "==> starting postgres"
 nohup apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
   postgres -D "${PGDATA}" \
+    -p "${PGPORT_NUM}" \
     -c listen_addresses='' \
     -c unix_socket_directories="${RUNDIR}" \
     -c shared_buffers=1GB \
@@ -69,14 +73,14 @@ echo $! >"${PIDFILE}"
 echo "==> waiting for readiness"
 for _ in $(seq 1 60); do
   if apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
-      pg_isready -h "${RUNDIR}" -U "${PGUSER_NAME}" >/dev/null 2>&1; then
+      pg_isready -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" >/dev/null 2>&1; then
     break
   fi
   sleep 1
 done
 
 if ! apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
-    pg_isready -h "${RUNDIR}" -U "${PGUSER_NAME}" >/dev/null 2>&1; then
+    pg_isready -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" >/dev/null 2>&1; then
   echo "error: postgres did not become ready. Tail of ${LOGFILE}:" >&2
   tail -30 "${LOGFILE}" >&2
   exit 1
@@ -84,14 +88,14 @@ fi
 
 # Idempotent database + extension setup.
 if ! apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
-    psql -h "${RUNDIR}" -U "${PGUSER_NAME}" -d postgres -tAc \
+    psql -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" -d postgres -tAc \
     "SELECT 1 FROM pg_database WHERE datname='${PGDB_NAME}'" | grep -q 1; then
   apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
-    createdb -h "${RUNDIR}" -U "${PGUSER_NAME}" "${PGDB_NAME}"
+    createdb -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" "${PGDB_NAME}"
 fi
 
 apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
-  psql -h "${RUNDIR}" -U "${PGUSER_NAME}" -d "${PGDB_NAME}" -v ON_ERROR_STOP=1 \
+  psql -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" -d "${PGDB_NAME}" -v ON_ERROR_STOP=1 \
   -c "CREATE EXTENSION IF NOT EXISTS vector;" >/dev/null
 
 echo "postgres ready"
