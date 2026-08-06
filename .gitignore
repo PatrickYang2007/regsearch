@@ -1,0 +1,8 @@
+data/
+.apptainer_cache/
+containers/*.sif
+.venv/
+__pycache__/
+*.pyc
+.env
+
