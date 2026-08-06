@@ -61,10 +61,35 @@ class Settings(BaseSettings):
     rerank_topk: int = 100
 
     @property
+    def resolved_host(self) -> str:
+        """Where Postgres is actually listening.
+
+        pg_start.sh records its own hostname in data/run/pg_host. Clients on
+        other nodes (Slurm jobs) must dial that host over TCP -- a Unix socket
+        is local IPC and is not connectable across hosts even when the socket
+        file lives on shared storage.
+        """
+        host_file = Path(self.run_dir) / "pg_host"
+        if host_file.exists():
+            recorded = host_file.read_text().strip()
+            if recorded:
+                return recorded
+        return self.pg_host
+
+    @property
+    def resolved_password(self) -> str:
+        pw_file = Path(self.run_dir) / "pg_password"
+        if pw_file.exists():
+            recorded = pw_file.read_text().strip()
+            if recorded:
+                return recorded
+        return self.pg_password
+
+    @property
     def dsn(self) -> str:
         return (
-            f"host={self.pg_host} port={self.pg_port} dbname={self.pg_db} "
-            f"user={self.pg_user} password={self.pg_password}"
+            f"host={self.resolved_host} port={self.pg_port} dbname={self.pg_db} "
+            f"user={self.pg_user} password={self.resolved_password}"
         )
 
     def ensure_dirs(self) -> None:

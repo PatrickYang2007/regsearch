@@ -27,6 +27,27 @@ PGPORT_NUM="${REGSEARCH_PG_PORT:-5432}"
 mkdir -p "${PGDATA}" "${RUNDIR}"
 chmod 700 "${PGDATA}"
 
+# Slurm jobs land on other nodes and must reach this database. A Unix socket
+# cannot serve them: it is local IPC, and a socket file on shared storage is
+# still not connectable from another host -- the compute node sees the inode
+# and gets ECONNREFUSED. So we listen on TCP and record where.
+#
+# TCP on a shared cluster means real auth: scram-sha-256 with a generated
+# password, never trust. Local (same-node) connections stay on the socket.
+PWFILE="${RUNDIR}/pg_password"
+if [[ ! -s "${PWFILE}" ]]; then
+  umask 077
+  # tr -dc can exit 141 (SIGPIPE) when head closes the pipe early; `|| true`
+  # keeps `set -o pipefail` from aborting the script on a successful read.
+  { LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32 || true; } >"${PWFILE}"
+  echo >>"${PWFILE}"
+fi
+chmod 600 "${PWFILE}"
+PGPASS_VALUE="$(tr -d '\n' <"${PWFILE}")"
+
+# Record the host serving this database so clients on other nodes can find it.
+hostname -f >"${RUNDIR}/pg_host"
+
 if [[ ! -f "${SIF}" ]]; then
   echo "error: ${SIF} not found. Run: scripts/pull_image.sh" >&2
   exit 1
@@ -53,15 +74,28 @@ if [[ ! -f "${PGDATA}/PG_VERSION" ]]; then
     initdb -D "${PGDATA}" \
       --username="${PGUSER_NAME}" \
       --auth-local=trust \
-      --auth-host=reject \
+      --auth-host=scram-sha-256 \
       --encoding=UTF8 --locale=C >/dev/null
+fi
+
+# Allow compute nodes in. Restricted to RFC1918 ranges -- the cluster's internal
+# network -- rather than 0.0.0.0/0, so this is never reachable from off-cluster
+# even if the node has a public interface.
+if ! grep -q 'regsearch-cluster-access' "${PGDATA}/pg_hba.conf" 2>/dev/null; then
+  cat >>"${PGDATA}/pg_hba.conf" <<'HBA'
+
+# regsearch-cluster-access
+host    all    all    10.0.0.0/8       scram-sha-256
+host    all    all    172.16.0.0/12    scram-sha-256
+host    all    all    192.168.0.0/16   scram-sha-256
+HBA
 fi
 
 echo "==> starting postgres"
 nohup apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
   postgres -D "${PGDATA}" \
     -p "${PGPORT_NUM}" \
-    -c listen_addresses='' \
+    -c listen_addresses='*' \
     -c unix_socket_directories="${RUNDIR}" \
     -c shared_buffers=1GB \
     -c work_mem=64MB \
@@ -98,8 +132,21 @@ apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
   psql -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" -d "${PGDB_NAME}" -v ON_ERROR_STOP=1 \
   -c "CREATE EXTENSION IF NOT EXISTS vector;" >/dev/null
 
+# Sync the role password to the generated one. Passed via a psql variable, not
+# string-interpolated into SQL, and over the local socket so it never crosses
+# the network.
+# Fed on stdin, not via -c: psql expands :'var' only when reading a script,
+# never for a -c command string (it would send the literal ":'pw'" and error).
+apptainer exec "${APPTAINER_ARGS[@]}" "${SIF}" \
+  psql -h "${RUNDIR}" -p "${PGPORT_NUM}" -U "${PGUSER_NAME}" -d "${PGDB_NAME}" \
+  -v ON_ERROR_STOP=1 -v pw="${PGPASS_VALUE}" \
+  >/dev/null <<SQL
+ALTER ROLE ${PGUSER_NAME} WITH PASSWORD :'pw';
+SQL
+
 echo "postgres ready"
-echo "  socket : ${RUNDIR}"
+echo "  host   : $(cat "${RUNDIR}/pg_host")  port: ${PGPORT_NUM}"
+echo "  socket : ${RUNDIR}  (same-node clients)"
 echo "  db     : ${PGDB_NAME}  user: ${PGUSER_NAME}"
 echo "  log    : ${LOGFILE}"
 echo "  psql   : scripts/pg_psql.sh"
