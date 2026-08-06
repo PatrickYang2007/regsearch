@@ -101,6 +101,88 @@ def search(
     console.print(t)
 
 
+@app.command("harvest-citations")
+def harvest_citations(
+    limit: int = typer.Option(2000, help="Max citing documents to process."),
+    min_refs: int = typer.Option(3, help="Skip docs with fewer resolvable refs."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Harvest weak relevance labels from the citation graph."""
+    _setup_logging(verbose)
+    from regsearch.ingest.citations import run_harvest
+
+    res = run_harvest(limit=limit, min_refs=min_refs)
+    console.print(
+        f"[green]harvested[/green] {res['pairs']:,} pairs from {res['documents']:,} documents"
+    )
+
+
+@app.command("build-evalset")
+def build_evalset(
+    test_frac: float = typer.Option(0.2, help="Fraction of citing docs held out."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Turn harvested citations into queries + qrels (split by citing doc)."""
+    _setup_logging(verbose)
+    from regsearch.eval.build import build_citation_evalset
+
+    res = build_citation_evalset(test_frac=test_frac)
+    console.print(
+        f"[green]built[/green] {res['queries']:,} queries / {res['qrels']:,} qrels"
+    )
+
+
+@app.command("eval")
+def eval_cmd(
+    split: str = typer.Option("test"),
+    origin: str = typer.Option("citation", help="citation | manual"),
+    arms: str = typer.Option("fts,dense,hybrid,hybrid_rerank"),
+    out: str = typer.Option(None, help="Write the table to a markdown file."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Run the ablation across retrieval arms."""
+    _setup_logging(verbose)
+    from regsearch.eval.harness import run_ablation
+
+    results = run_ablation(
+        arms=[a.strip() for a in arms.split(",") if a.strip()],  # type: ignore[arg-type]
+        split=split,
+        origin=origin,
+    )
+
+    t = Table(title=f"ablation · split={split} · origin={origin} · n={results[0].n_queries}")
+    for col, just in [
+        ("arm", "left"), ("Recall@50", "right"), ("nDCG@10", "right"),
+        ("MRR", "right"), ("p50 ms", "right"), ("p95 ms", "right"),
+    ]:
+        t.add_column(col, justify=just)  # type: ignore[arg-type]
+    for r in results:
+        t.add_row(
+            r.arm, f"{r.recall_at_50:.4f}", f"{r.ndcg_at_10:.4f}",
+            f"{r.mrr:.4f}", f"{r.latency_p50_ms:.1f}", f"{r.latency_p95_ms:.1f}",
+        )
+    console.print(t)
+
+    if out:
+        from pathlib import Path
+
+        lines = [
+            f"| arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+        lines += [
+            f"| `{r.arm}` | {r.recall_at_50:.4f} | {r.ndcg_at_10:.4f} | "
+            f"{r.mrr:.4f} | {r.latency_p50_ms:.1f} | {r.latency_p95_ms:.1f} |"
+            for r in results
+        ]
+        lines.append("")
+        lines.append(
+            f"_n={results[0].n_queries} queries, split={split}, origin={origin}._"
+        )
+        Path(out).write_text("\n".join(lines) + "\n")
+        console.print(f"[green]wrote[/green] {out}")
+
+
 @app.command("build-index")
 def build_index(
     m: int = typer.Option(16, help="HNSW m."),

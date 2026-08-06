@@ -1,0 +1,831 @@
+Downloading nvidia-nvjitlink (38.9MiB)
+Downloading nvidia-cudnn-cu13 (349.2MiB)
+Downloading nvidia-cusparselt-cu13 (162.3MiB)
+Downloading scipy (33.7MiB)
+Downloading nvidia-cufile (1.2MiB)
+Downloading nvidia-curand (56.8MiB)
+Downloading nvidia-cusparse (139.2MiB)
+Downloading nvidia-nvshmem-cu13 (57.6MiB)
+Downloading networkx (2.0MiB)
+Downloading nvidia-cusolver (191.6MiB)
+Downloading nvidia-cufft (204.2MiB)
+Downloading cuda-bindings (6.4MiB)
+Downloading tokenizers (3.1MiB)
+Downloading nvidia-cublas (403.5MiB)
+Downloading nvidia-cuda-runtime (2.1MiB)
+Downloading sympy (6.0MiB)
+Downloading scikit-learn (8.9MiB)
+Downloading nvidia-nccl-cu13 (196.4MiB)
+Downloading nvidia-cuda-cupti (10.2MiB)
+Downloading triton (188.5MiB)
+Downloading hf-xet (4.3MiB)
+Downloading nvidia-cuda-nvrtc (86.0MiB)
+Downloading transformers (11.1MiB)
+Downloading torch (502.2MiB)
+ Downloaded nvidia-cufile
+ Downloaded nvidia-cuda-runtime
+ Downloaded tokenizers
+ Downloaded hf-xet
+ Downloaded networkx
+ Downloaded cuda-bindings
+ Downloaded nvidia-cuda-cupti
+ Downloaded scikit-learn
+ Downloaded sympy
+ Downloaded transformers
+ Downloaded scipy
+ Downloaded nvidia-nvjitlink
+ Downloaded nvidia-curand
+ Downloaded nvidia-nvshmem-cu13
+ Downloaded nvidia-cuda-nvrtc
+ Downloaded nvidia-cusparse
+ Downloaded nvidia-cusparselt-cu13
+ Downloaded triton
+ Downloaded nvidia-cusolver
+ Downloaded nvidia-nccl-cu13
+ Downloaded nvidia-cufft
+ Downloaded nvidia-cudnn-cu13
+ Downloaded nvidia-cublas
+ Downloaded torch
+Installed 44 packages in 30.51s
+/vast/palmer/pi/garg/Patrick/regsearch/.venv/lib64/python3.11/site-packages/torch/cuda/__init__.py:188: UserWarning: CUDA initialization: The NVIDIA driver on your system is too old (found version 12080). Please update your GPU driver by downloading and installing a new version from the URL: http://www.nvidia.com/Download/index.aspx Alternatively, go to: https://pytorch.org to install a PyTorch version that has been compiled with your version of the CUDA driver. (Triggered internally at /__w/pytorch/pytorch/c10/cuda/CUDAFunctions.cpp:119.)
+  return torch._C._cuda_getDeviceCount() > 0
+01:04:14 INFO    regsearch.retrieve.embed | loading BAAI/bge-small-en-v1.5 on cpu
+01:04:15 DEBUG   httpcore.connection | connect_tcp.started host='huggingface.co' port=443 local_address=None timeout=3 socket_options=None
+01:04:15 DEBUG   httpcore.connection | connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x14d6e1654790>
+01:04:15 DEBUG   httpcore.connection | start_tls.started ssl_context=<ssl.SSLContext object at 0x14d6e15e1760> server_hostname='huggingface.co' timeout=3
+01:04:15 DEBUG   httpcore.connection | start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x14d6e1654810>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"1523-mQdmV5Bv85jNaKvO4A7GDNtqjeQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-15e3c52e5aca96bb485640e9;85ce7bf5-bc87-4b66-994f-6b2cd795f889'), (b'RateLimit', b'"api";r=499;t=284'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'xraTTPJtSjUutAOxWj6jgHvAJdIuhGsF2xoUdCjkwCIfPjzfbj_D1g==')])
+01:04:15 INFO    httpx | HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'250'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/modules.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fmodules.json=&etag=%22952a9b81c0bfd99800fabf352f69c7ccd46c5e43%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-6308f8427b902f4d37366ab3;4235b15d-30a0-4ff0-9bad-fc4e9b79ade2'), (b'RateLimit', b'"resolvers";r=2999;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'modules.json; filename="modules.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"952a9b81c0bfd99800fabf352f69c7ccd46c5e43"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'okWVYmUG7AvP8c70U2vQK3o-Poi86G50JF7FOolqvDLOvFXj5Gl9-w==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+01:04:15 WARNING huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'349'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 25 Apr 2026 06:52:14 GMT'), (b'ETag', b'"952a9b81c0bfd99800fabf352f69c7ccd46c5e43"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69ec649d-477b667d39a8901a32bf4187'), (b'RateLimit', b'"resolvers";r=2999;t=198'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'modules.json; filename="modules.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'6IGK4fjfEQOxc3xNZVYVdwXpa0qPAI9lTjTPNE_x0Ripk3lwv9BfeA=='), (b'Age', b'8892721')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/modules.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to acquire lock 22913347113872 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/952a9b81c0bfd99800fabf352f69c7ccd46c5e43.lock
+01:04:15 DEBUG   filelock | Lock 22913347113872 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/952a9b81c0bfd99800fabf352f69c7ccd46c5e43.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'349'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 24 Jun 2026 12:33:31 GMT'), (b'ETag', b'"952a9b81c0bfd99800fabf352f69c7ccd46c5e43"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3bce9b-654d929f285c2b29311584ed;c33e9f34-35f3-45fc-ba21-cbe0c895745f'), (b'RateLimit', b'"resolvers";r=2998;t=201'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'modules.json; filename="modules.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'tFVa4KvYnuVYcMl8SarysnymeVl26IjxJJD7VuZ0fRTdZAJRXpxzgA=='), (b'Age', b'3688244')])
+01:04:15 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/modules.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to release lock 22913347113872 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/952a9b81c0bfd99800fabf352f69c7ccd46c5e43.lock
+01:04:15 DEBUG   filelock | Lock 22913347113872 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/952a9b81c0bfd99800fabf352f69c7ccd46c5e43.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'292'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config_sentence_transformers.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fconfig_sentence_transformers.json=&etag=%22dcb0c0d97d09b930d13600b1a773ddb27e441aab%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-788570dc512a8e50041f5d74;c1be086e-9f39-4704-a884-d744651212e6'), (b'RateLimit', b'"resolvers";r=2998;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config_sentence_transformers.json; filename="config_sentence_transformers.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"dcb0c0d97d09b930d13600b1a773ddb27e441aab"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'y_pPq69y1aY-7YtmOovI53m9NkR5vTBJ7jup9i3n6Fqq7ADxdrhJdA==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'124'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 14 Apr 2026 08:14:28 GMT'), (b'ETag', b'"dcb0c0d97d09b930d13600b1a773ddb27e441aab"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69ddf764-2cc0bfbb0d67d5ad03282963;1ece890c-6cf8-4c80-9a60-efe5df826006'), (b'RateLimit', b'"resolvers";r=2948;t=280'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config_sentence_transformers.json; filename="config_sentence_transformers.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'MTgevQ2eECMZlp8v3vk_MG2EihiNzAx30VgpN9E9iBJOBzHeLRWN9Q=='), (b'Age', b'9838187')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config_sentence_transformers.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to acquire lock 22913137123984 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/dcb0c0d97d09b930d13600b1a773ddb27e441aab.lock
+01:04:15 DEBUG   filelock | Lock 22913137123984 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/dcb0c0d97d09b930d13600b1a773ddb27e441aab.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'124'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 24 Jun 2026 12:33:31 GMT'), (b'ETag', b'"dcb0c0d97d09b930d13600b1a773ddb27e441aab"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3bce9b-1e1c27c24e92d351713fa3c1;176345c9-cc40-43a4-ba08-111b183190d9'), (b'RateLimit', b'"resolvers";r=2996;t=201'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config_sentence_transformers.json; filename="config_sentence_transformers.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'Oh9aOq9_Mo0HfJPPNQhjkcujiqU--9UERd2m8VzgDZm-kUSzPcD7Nw=='), (b'Age', b'3688244')])
+01:04:15 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config_sentence_transformers.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to release lock 22913137123984 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/dcb0c0d97d09b930d13600b1a773ddb27e441aab.lock
+01:04:15 DEBUG   filelock | Lock 22913137123984 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/dcb0c0d97d09b930d13600b1a773ddb27e441aab.lock
+01:04:15 INFO    sentence_transformers.base.model | Loading SentenceTransformer model from BAAI/bge-small-en-v1.5.
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'292'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config_sentence_transformers.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fconfig_sentence_transformers.json=&etag=%22dcb0c0d97d09b930d13600b1a773ddb27e441aab%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-68fb796e299e9b3f323299ad;85244451-d8a0-4a2f-bc2e-579578e97f0d'), (b'RateLimit', b'"resolvers";r=2997;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config_sentence_transformers.json; filename="config_sentence_transformers.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"dcb0c0d97d09b930d13600b1a773ddb27e441aab"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'Ep27K0nZouL5CJshRjzlqeFo957vhfIOBa0n6gifT7Fs6uu5tD-t7g==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'124'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 14 Apr 2026 08:14:28 GMT'), (b'ETag', b'"dcb0c0d97d09b930d13600b1a773ddb27e441aab"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69ddf764-2cc0bfbb0d67d5ad03282963;1ece890c-6cf8-4c80-9a60-efe5df826006'), (b'RateLimit', b'"resolvers";r=2948;t=280'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config_sentence_transformers.json; filename="config_sentence_transformers.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'GzH9yiANpkOnn4AAwqw9Nz-MMXUan2qCFP3wosF7ZtK-fArcLa7sRQ=='), (b'Age', b'9838187')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config_sentence_transformers.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'244'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/README.md?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2FREADME.md=&etag=%228b8567d75ffa619486d9590cb0eb76d66ad46c49%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-3f04893830e4259a4248c9b6;df73db22-b9ee-44c8-b1dc-d8a12514674c'), (b'RateLimit', b'"resolvers";r=2996;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'README.md; filename="README.md";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"8b8567d75ffa619486d9590cb0eb76d66ad46c49"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'1lzFNjj0zmdWJBaU2Ng_R45TONK0BuWidkTaugZKcv0J6O07xWOr7A==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'94783'), (b'Connection', b'keep-alive'), (b'Date', b'Fri, 22 Aug 2025 22:47:40 GMT'), (b'ETag', b'"8b8567d75ffa619486d9590cb0eb76d66ad46c49"'), (b'X-Powered-By', b'huggingface-moon'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'X-Request-Id', b'Root=1-68a8f38c-3d28905123ddf8387451d178;b4065459-27e0-4c80-aebc-02b272d342fd'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'Set-Cookie', b'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; SameSite=None'), (b'Set-Cookie', b'token=; Domain=huggingface.co; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; SameSite=Lax'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'README.md; filename="README.md";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'EWLQ5LRejlQh0fOy1LP2HycZhtLsT0dLDngfoNbM7YoDusqThBbKig=='), (b'Age', b'30089795')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/README.md "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to acquire lock 22913137170384 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/8b8567d75ffa619486d9590cb0eb76d66ad46c49.lock
+01:04:15 DEBUG   filelock | Lock 22913137170384 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/8b8567d75ffa619486d9590cb0eb76d66ad46c49.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 10 Jun 2026 09:58:06 GMT'), (b'Content-Encoding', b'gzip'), (b'ETag', b'W/"8b8567d75ffa619486d9590cb0eb76d66ad46c49"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a29352e-2ecbc325276d07770b08535f;8ab99c6f-1a24-4f2b-b477-11590908fda8'), (b'RateLimit', b'"resolvers";r=2995;t=2'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'README.md; filename="README.md";'), (b'Vary', b'Origin,Accept-Encoding'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'vDcTKIwkxTw9jeSsuel9VeaKlQnEpXEydsxO5aZe9ZCz1e0B9rK6TQ=='), (b'Age', b'4907169')])
+01:04:15 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/README.md "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to release lock 22913137170384 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/8b8567d75ffa619486d9590cb0eb76d66ad46c49.lock
+01:04:15 DEBUG   filelock | Lock 22913137170384 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/8b8567d75ffa619486d9590cb0eb76d66ad46c49.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'250'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/modules.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fmodules.json=&etag=%22952a9b81c0bfd99800fabf352f69c7ccd46c5e43%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-5aaba20c6ca6750d1c042b75;88f3a57e-3826-45f0-b6b8-212e2835b656'), (b'RateLimit', b'"resolvers";r=2995;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'modules.json; filename="modules.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"952a9b81c0bfd99800fabf352f69c7ccd46c5e43"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'3HPsu2aX1UAGOlD7QRM0B9ZwjR17axRjaG2vYdhruse-CXAFTqc2Qg==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'349'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 25 Apr 2026 06:52:14 GMT'), (b'ETag', b'"952a9b81c0bfd99800fabf352f69c7ccd46c5e43"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69ec649d-477b667d39a8901a32bf4187'), (b'RateLimit', b'"resolvers";r=2999;t=198'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'modules.json; filename="modules.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'CVEYSJGrzjU4KlJOI-S0ZPlgkPjjfkzH7Y72Kl8EK369p166Fe2M_Q=='), (b'Age', b'8892721')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/modules.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'276'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/sentence_bert_config.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fsentence_bert_config.json=&etag=%22ea85692bff64b0d1917833c31ddbca8ab10f5455%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-1c58f7054d93d84c2efc44cc;d0144fcf-76b0-4984-9aff-259d947c8f47'), (b'RateLimit', b'"resolvers";r=2994;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'sentence_bert_config.json; filename="sentence_bert_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"ea85692bff64b0d1917833c31ddbca8ab10f5455"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b's4b9Qm-XndaQJHEuyhY3GAo-vzzKPTY-6kUxiwb8mK5TyW2s5T_kSA==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'52'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 20 Apr 2026 01:49:32 GMT'), (b'ETag', b'"ea85692bff64b0d1917833c31ddbca8ab10f5455"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69e5862c-4dea842142a4325052793d01'), (b'RateLimit', b'"resolvers";r=2997;t=220'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'sentence_bert_config.json; filename="sentence_bert_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'sG6lcdCBMUoRBQmK1-X32Qtep9ZMlAxCqkafytly8x8Px8TXnfil0Q=='), (b'Age', b'9342883')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/sentence_bert_config.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to acquire lock 22913137208720 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/ea85692bff64b0d1917833c31ddbca8ab10f5455.lock
+01:04:15 DEBUG   filelock | Lock 22913137208720 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/ea85692bff64b0d1917833c31ddbca8ab10f5455.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'52'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 24 Jun 2026 12:33:33 GMT'), (b'ETag', b'"ea85692bff64b0d1917833c31ddbca8ab10f5455"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3bce9d-392d9a8e2deb362a04f41573;49ea8ddc-0c8c-418d-a64c-33575cbd0c0c'), (b'RateLimit', b'"resolvers";r=2991;t=199'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'sentence_bert_config.json; filename="sentence_bert_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'bK_7lJNAaGATP0Uedn2BnpCPAHyeeOXLR43_SgiO5V9VpuQCmaDeeQ=='), (b'Age', b'3688242')])
+01:04:15 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/sentence_bert_config.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to release lock 22913137208720 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/ea85692bff64b0d1917833c31ddbca8ab10f5455.lock
+01:04:15 DEBUG   filelock | Lock 22913137208720 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/ea85692bff64b0d1917833c31ddbca8ab10f5455.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-3b30ccca7234eeae6e1b1e7b;e843c327-5115-4045-bb68-6eaf1f0453dd'), (b'RateLimit', b'"resolvers";r=2993;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'3u5RLB4yYcepW-G-TygVnElFQaeEwJup8TwoEAflYd03XfTiW8YKPw==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'248'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fconfig.json=&etag=%223992bf890728a92476c700e6e657fd696eb94160%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-0d82a4b514ab0ec02955c720;dcfffaf6-b4f1-4bf2-bb1e-9fade705ba5d'), (b'RateLimit', b'"resolvers";r=2992;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'yakXrPUk6y9clrbPQ2rDF2SupyDzB1FUeaevL_uMRdlO2i8keMcSdg==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'743'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 26 Mar 2026 19:08:52 GMT'), (b'ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69c58444-7157f69234661f7e689872ff;41b48b9d-5c0d-46fc-8d88-3df9a1bdf9d7'), (b'RateLimit', b'"resolvers";r=2935;t=256'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'u-Mia3anJRdHbU6UPGBKXkvefDqkvKFhZiRSVIB85Uwx3_XMFifNfg=='), (b'Age', b'11440523')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to acquire lock 22913137190608 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3992bf890728a92476c700e6e657fd696eb94160.lock
+01:04:15 DEBUG   filelock | Lock 22913137190608 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3992bf890728a92476c700e6e657fd696eb94160.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'743'), (b'Connection', b'keep-alive'), (b'Date', b'Fri, 19 Jun 2026 13:49:35 GMT'), (b'ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3548ef-4689e1441b7274d82811f952;8d28d973-da51-4761-aa91-edec5f7c45c3'), (b'RateLimit', b'"resolvers";r=2962;t=25'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'ylT2nwn1cEaqTudX4Y_u78DpFiOM1rlKNImtC2p7Ma7-K_17gSm-DQ=='), (b'Age', b'4115680')])
+01:04:15 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json "HTTP/1.1 200 OK"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to release lock 22913137190608 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3992bf890728a92476c700e6e657fd696eb94160.lock
+01:04:15 DEBUG   filelock | Lock 22913137190608 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3992bf890728a92476c700e6e657fd696eb94160.lock
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:15 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 302, b'Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'980'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:15 GMT'), (b'Location', b'https://us.aws.cdn.hf.co/xet-bridge-us/64fff537d522560505ad6567/f34dad568ecbc8f2452ae7ea84e72884e1bab4f299cec39fd8f978b5fba8d3c9?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&Expires=1785996255&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmZmY1MzdkNTIyNTYwNTA1YWQ2NTY3L2YzNGRhZDU2OGVjYmM4ZjI0NTJhZTdlYTg0ZTcyODg0ZTFiYWI0ZjI5OWNlYzM5ZmQ4Zjk3OGI1ZmJhOGQzYzlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bW9kZWwuc2FmZXRlbnNvcnMlM0IrZmlsZW5hbWUlM0QlMjJtb2RlbC5zYWZldGVuc29ycyUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1OTk2MjU1fX19XX0_&Signature=MEQCIANkE2-CTOzu3xglzHXh8QkgwaLGIMIVYe1Pg3QKldRvAiAKMe2mA6C-GhBzWpiKNXSO6O56bWZ6O6tkR9mhChHe1A__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415cf-4b8db9e1668b68613bfbe284;ec189497-5744-4041-a686-ea64739c760a'), (b'RateLimit', b'"resolvers";r=2991;t=284'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'X-Linked-Size', b'133466304'), (b'X-Linked-ETag', b'"3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad"'), (b'Cache-Control', b'no-store'), (b'X-Xet-Hash', b'f34dad568ecbc8f2452ae7ea84e72884e1bab4f299cec39fd8f978b5fba8d3c9'), (b'Link', b'<https://huggingface.co/api/models/BAAI/bge-small-en-v1.5/xet-read-token/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a>; rel="xet-auth", <https://cas-server.xethub.hf.co/v1/reconstructions/f34dad568ecbc8f2452ae7ea84e72884e1bab4f299cec39fd8f978b5fba8d3c9>; rel="xet-reconstruction-info"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'pLv6Fdi3Em8vielPNuES4pma7ifl4JtEBXzT3w1mWxvFf2BPFb39Gg==')])
+01:04:15 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:15 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:15 DEBUG   httpcore.http11 | response_closed.started
+01:04:15 DEBUG   httpcore.http11 | response_closed.complete
+01:04:15 DEBUG   filelock | Attempting to acquire lock 22913131483408 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad.lock
+01:04:15 DEBUG   filelock | Lock 22913131483408 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad.lock
+01:04:16 DEBUG   filelock | Attempting to release lock 22913131483408 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad.lock
+01:04:16 DEBUG   filelock | Lock 22913131483408 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad.lock
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2156.88it/s]
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-5e38cde05cb1602c70660057;9c7b1313-daa5-4593-83c9-7f603e58c6b9'), (b'RateLimit', b'"resolvers";r=2990;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'Tgjms_RDxFYMezZZ9diTghv-7mMNq6Ot8WwdQ1W0buyU3Tykmj0Yeg==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-297311081a36f93f6885ef67;80763562-3f6e-4507-9f52-8313a04db76e'), (b'RateLimit', b'"resolvers";r=2989;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'0p55VeRJ14_7a-NUsfJdsVBcxwjBFORaaxCc1GYZtX0d5Zh9vGHeVA==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-02ae158a68cff216687e499f;12eac40b-3617-4c1a-91ac-646d836f4c98'), (b'RateLimit', b'"resolvers";r=2988;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'dAv3E4bBD8eF_3oNGFyEhXWFQkdl8Vpk6fnFYp6v79L0DbbUHp7nNA==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-3f654568607ddb6b3af9905e;a47d1b06-cd31-440b-87c8-0fad51158464'), (b'RateLimit', b'"resolvers";r=2987;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'bVrnwk_P8GyCy6QEXLYMZuiNLee3_EidGGXSZ4jv3Q02TrJH4sNi4A==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'268'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Ftokenizer_config.json=&etag=%2237fca74771bc76a8e01178ce3a6055a0995f8093%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-1b13a615099fddec3307312b;97589f75-8fc5-43f5-86ec-6683be91e4b3'), (b'RateLimit', b'"resolvers";r=2986;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer_config.json; filename="tokenizer_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"37fca74771bc76a8e01178ce3a6055a0995f8093"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'PuQnZzQIfdlfmodquIwtOuYJiFPb8Omzb1z2OzEmzWPqrDYeV9aRJQ==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'366'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 09 May 2026 23:48:20 GMT'), (b'ETag', b'"37fca74771bc76a8e01178ce3a6055a0995f8093"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69ffc7c4-6f69e3e72f7dbbf03cdc80f3;c48ae411-7b31-438d-801e-6debd4a9ad35'), (b'RateLimit', b'"resolvers";r=2999;t=292'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer_config.json; filename="tokenizer_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'0D0kUlSTvTaDQij8pgbhzaI3Y7uTec_1Lhl2H1gxwLhxPJBbGDRwQA=='), (b'Age', b'7622156')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json "HTTP/1.1 200 OK"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   filelock | Attempting to acquire lock 22913131956944 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/37fca74771bc76a8e01178ce3a6055a0995f8093.lock
+01:04:16 DEBUG   filelock | Lock 22913131956944 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/37fca74771bc76a8e01178ce3a6055a0995f8093.lock
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'366'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 24 Jun 2026 12:33:58 GMT'), (b'ETag', b'"37fca74771bc76a8e01178ce3a6055a0995f8093"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3bceb6-515f92e03eb731634edae3c7;c626d839-e6fb-4a92-b1e8-88ca41c04884'), (b'RateLimit', b'"resolvers";r=2982;t=174'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer_config.json; filename="tokenizer_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'PmpDz6MELQPNsdTk7npXgz1w2hKZvwsG1kMLdePYfAm-iNF-Hv59DQ=='), (b'Age', b'3688218')])
+01:04:16 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json "HTTP/1.1 200 OK"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   filelock | Attempting to release lock 22913131956944 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/37fca74771bc76a8e01178ce3a6055a0995f8093.lock
+01:04:16 DEBUG   filelock | Lock 22913131956944 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/37fca74771bc76a8e01178ce3a6055a0995f8093.lock
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'248'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fconfig.json=&etag=%223992bf890728a92476c700e6e657fd696eb94160%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-5a5a9ce43d68e3e379e75f1c;4a4536da-17a4-4d7b-aac7-679023730520'), (b'RateLimit', b'"resolvers";r=2985;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'OgU0SCyXsTjH3i7MKSpZ91XnhXXaEEUej5MOYylP2o4iIQiBC1Fpzw==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'743'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 26 Mar 2026 19:08:52 GMT'), (b'ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69c58444-7157f69234661f7e689872ff;41b48b9d-5c0d-46fc-8d88-3df9a1bdf9d7'), (b'RateLimit', b'"resolvers";r=2935;t=256'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'fNqh_izovNTAH3UUYBk-672MO7kMlsfKF8Q7dsl5C2nJBz3G5TOcTw=='), (b'Age', b'11440524')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json "HTTP/1.1 200 OK"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'248'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:16 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fconfig.json=&etag=%223992bf890728a92476c700e6e657fd696eb94160%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d0-74dd5ebe619864a00db180e4;fb592fff-110b-4f8b-82a1-2d7ae125f989'), (b'RateLimit', b'"resolvers";r=2984;t=283'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'SHr7lPYvn0HL0Bt4k5FsVj-02WIIIpPz_jr6W1m_VyWOP5R-tLIubQ==')])
+01:04:16 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:16 DEBUG   httpcore.http11 | response_closed.started
+01:04:16 DEBUG   httpcore.http11 | response_closed.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:16 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:16 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:16 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'743'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 26 Mar 2026 19:08:52 GMT'), (b'ETag', b'"3992bf890728a92476c700e6e657fd696eb94160"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69c58444-7157f69234661f7e689872ff;41b48b9d-5c0d-46fc-8d88-3df9a1bdf9d7'), (b'RateLimit', b'"resolvers";r=2935;t=256'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'OB4r9YibFkI9cbiVfYNJdeOIpyW3qGtYnAnzqMfFvBBSK01zDC6FNg=='), (b'Age', b'11440524')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'268'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Ftokenizer_config.json=&etag=%2237fca74771bc76a8e01178ce3a6055a0995f8093%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-4bee44ab606f6fee496246b4;0789b7de-77da-4f78-94a5-ac93cd802aba'), (b'RateLimit', b'"resolvers";r=2983;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer_config.json; filename="tokenizer_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"37fca74771bc76a8e01178ce3a6055a0995f8093"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'MiMbJnrdKt2p_RRLw_mCuwK1RKXedCMyhy6Af0uNDFtvUNpbYn7nkQ==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'366'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 09 May 2026 23:48:20 GMT'), (b'ETag', b'"37fca74771bc76a8e01178ce3a6055a0995f8093"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69ffc7c4-6f69e3e72f7dbbf03cdc80f3;c48ae411-7b31-438d-801e-6debd4a9ad35'), (b'RateLimit', b'"resolvers";r=2999;t=292'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer_config.json; filename="tokenizer_config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'IZ_ZO0lLcwP9B_3ElUwcbXXPVnrmbP7cSr2tgtCVzIoTnaG8E1dyBg=='), (b'Age', b'7622157')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Content-Length', b'64'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'ETag', b'W/"40-09f9IAqP13xarAhQxFS2W8rvRkM"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-19fbd66b43f0f4fd4c97fc4c;ca630eaa-af05-4505-80f2-fad2bb85bd3f'), (b'RateLimit', b'"api";r=498;t=282'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'additional_chat_templates does not exist on "main"'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'lIY9qT5mLVjmSob3YheAaqc7CwDUG09vNKFxEWYaXjEn5uQX8TM8xQ==')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-small-en-v1.5/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"8c2-+B357tswuSDPZQJ4PcEV7JZlfTw"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-087f6da81b85f6d402f466b3;15dadba4-9c76-4198-8729-71de0d2501c3'), (b'RateLimit', b'"api";r=497;t=282'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'AxdEZ-_oX72XW7NDMmjItSOYr2aC3aqqVgD9j6G6d_UbSExlMTvR9w==')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-small-en-v1.5/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'244'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/vocab.txt?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fvocab.txt=&etag=%22fb140275c155a9c7c5a3b3e0e77a9e839594a938%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-63cae12b3d6de2f775633aa1;6e94aec3-6ce1-476d-b042-acff89aabaf6'), (b'RateLimit', b'"resolvers";r=2982;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'vocab.txt; filename="vocab.txt";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"fb140275c155a9c7c5a3b3e0e77a9e839594a938"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'WGv_EpjnI_2lpEHw7oQ43tcwkUTJC84RZnqv9IowVpaXfuXKCI0EIA==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/vocab.txt "HTTP/1.1 307 Temporary Redirect"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'231508'), (b'Connection', b'keep-alive'), (b'Date', b'Fri, 22 Aug 2025 22:47:48 GMT'), (b'ETag', b'"fb140275c155a9c7c5a3b3e0e77a9e839594a938"'), (b'X-Powered-By', b'huggingface-moon'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'X-Request-Id', b'Root=1-68a8f394-1952c418760b9ef34141e8d6;96665304-0a73-42ba-b58d-6136f3677b99'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'Set-Cookie', b'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; SameSite=None'), (b'Set-Cookie', b'token=; Domain=huggingface.co; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; SameSite=Lax'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'vocab.txt; filename="vocab.txt";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'IEjWHKuV0-guIRd_L8lxN23TWlA1RbBUoxdGF8ScVCC1FPQ6NMhevw=='), (b'Age', b'30089789')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/vocab.txt "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to acquire lock 22912985801360 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/fb140275c155a9c7c5a3b3e0e77a9e839594a938.lock
+01:04:17 DEBUG   filelock | Lock 22912985801360 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/fb140275c155a9c7c5a3b3e0e77a9e839594a938.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 24 Jun 2026 12:34:00 GMT'), (b'Content-Encoding', b'gzip'), (b'ETag', b'W/"fb140275c155a9c7c5a3b3e0e77a9e839594a938"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3bceb8-20aba1091e8850787938965c;121b1b46-ed6a-460e-b668-6ed25b39faee'), (b'RateLimit', b'"resolvers";r=2977;t=172'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'vocab.txt; filename="vocab.txt";'), (b'Vary', b'Origin,Accept-Encoding'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'88xMuEjok1HAaTNMtd888FzfzZOiHTlBR_-0uZxcvqDhOe9y-KUzSA=='), (b'Age', b'3688217')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/vocab.txt "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to release lock 22912985801360 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/fb140275c155a9c7c5a3b3e0e77a9e839594a938.lock
+01:04:17 DEBUG   filelock | Lock 22912985801360 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/fb140275c155a9c7c5a3b3e0e77a9e839594a938.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'254'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Ftokenizer.json=&etag=%22688882a79f44442ddc1f60d70334a7ff5df0fb47%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-11b4f5845cbee0e85762839c;9ceee1f0-bb19-4319-b8fc-2c8e75753a16'), (b'RateLimit', b'"resolvers";r=2981;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer.json; filename="tokenizer.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"688882a79f44442ddc1f60d70334a7ff5df0fb47"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'AGTafijLRfZZ4TQ7frftll9z9wsZtc18ldmF-LrJ5V9GvRaJfsHxlA==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'711396'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 03 Nov 2025 09:25:32 GMT'), (b'ETag', b'"688882a79f44442ddc1f60d70334a7ff5df0fb47"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6908750c-16f25c006e7954de146aa944;67ba79a7-462f-40f9-9b46-54eac3d38e09'), (b'RateLimit', b'"resolvers";r=2919;t=44'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer.json; filename="tokenizer.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'WLeENkbZRbG2Dghe7NPWccVK-VdMPn2-0N9_lnFelkDu_QAtXujxIQ=='), (b'Age', b'23830725')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to acquire lock 22912985805136 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/688882a79f44442ddc1f60d70334a7ff5df0fb47.lock
+01:04:17 DEBUG   filelock | Lock 22912985805136 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/688882a79f44442ddc1f60d70334a7ff5df0fb47.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 24 Jun 2026 12:34:01 GMT'), (b'Content-Encoding', b'gzip'), (b'ETag', b'W/"688882a79f44442ddc1f60d70334a7ff5df0fb47"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3bceb9-66305bce1d322a1c6b83d5ed;1efe78a1-6309-4f6d-8805-e1ad2ca6f6ee'), (b'RateLimit', b'"resolvers";r=2975;t=171'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'tokenizer.json; filename="tokenizer.json";'), (b'Vary', b'Origin,Accept-Encoding'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'jkU1jUSnj6KgPwIanHUGpkWePENkZI79_wbubP9ivCp9PgHUpwGhaA=='), (b'Age', b'3688216')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to release lock 22912985805136 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/688882a79f44442ddc1f60d70334a7ff5df0fb47.lock
+01:04:17 DEBUG   filelock | Lock 22912985805136 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/688882a79f44442ddc1f60d70334a7ff5df0fb47.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-1cd2ae2f56b8d4fb7130caee;2b5ee6e4-81ea-4926-8079-a699afc380db'), (b'RateLimit', b'"resolvers";r=2980;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'1ts0Er43305jL97I0iOFEyFo0FO3ynj-eH0dG1IKAT9wmYJdaLP3hg==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'272'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/special_tokens_map.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2Fspecial_tokens_map.json=&etag=%22a8b3208c2884c4efb86e49300fdd3dc877220cdf%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-4641268e681a00387f22378c;7b299635-16f6-4251-9de1-7e7f07d41ff6'), (b'RateLimit', b'"resolvers";r=2979;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'special_tokens_map.json; filename="special_tokens_map.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"a8b3208c2884c4efb86e49300fdd3dc877220cdf"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'LmG_Pb-JM_kAmb7pNEv2pfyeB3AJUAGTRtBrG11i_wJ9I0rZSTyzdA==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/special_tokens_map.json "HTTP/1.1 307 Temporary Redirect"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'125'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 06 May 2026 02:18:10 GMT'), (b'ETag', b'"a8b3208c2884c4efb86e49300fdd3dc877220cdf"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-69faa4e2-489e600e5ca281df306339cb'), (b'RateLimit', b'"resolvers";r=2962;t=226'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'special_tokens_map.json; filename="special_tokens_map.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'qyp1B7-7Zpuheng6A1JYirJaMXgbH0yJujgEbvVmp6wTvbaO7KnSeA=='), (b'Age', b'7958767')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/special_tokens_map.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to acquire lock 22913115245136 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/a8b3208c2884c4efb86e49300fdd3dc877220cdf.lock
+01:04:17 DEBUG   filelock | Lock 22913115245136 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/a8b3208c2884c4efb86e49300fdd3dc877220cdf.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'125'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 03 Jun 2026 12:39:16 GMT'), (b'ETag', b'"a8b3208c2884c4efb86e49300fdd3dc877220cdf"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a202074-7a2eed270de86912750079f6;d94968ca-fb61-49fc-887a-da77f774d4b2'), (b'RateLimit', b'"resolvers";r=2978;t=141'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'special_tokens_map.json; filename="special_tokens_map.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'V-g1HGLOmLFHLbp8Ae8R98u0dQ9JGvkoITcpRtWWklHxjMip5Jj9yw=='), (b'Age', b'5502301')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/special_tokens_map.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to release lock 22913115245136 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/a8b3208c2884c4efb86e49300fdd3dc877220cdf.lock
+01:04:17 DEBUG   filelock | Lock 22913115245136 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/a8b3208c2884c4efb86e49300fdd3dc877220cdf.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-1404c95a19fe22c75e3adf4c;3cae6592-53e5-4549-8af3-eef6a82d198e'), (b'RateLimit', b'"resolvers";r=2978;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'BvCZCitckc9Ae-cs27lMbq_4UBjTYyl3FbFsunr9mkZaOw4mNX_XeA==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   sentence_transformers.base.modules.transformer | Active modality config: {'text': {'method': 'forward', 'method_output_name': 'last_hidden_state'}}
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'272'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'Location', b'/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/1_Pooling%2Fconfig.json?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2Fmain%2F1_Pooling%2Fconfig.json=&etag=%221da070f0993788c8851a652170ff013aa54dd519%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-3d5303fa193ffcdb6dbaeae3;217e6631-0caa-47e1-8ec1-75376914e3bd'), (b'RateLimit', b'"resolvers";r=2977;t=282'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-ETag', b'"1da070f0993788c8851a652170ff013aa54dd519"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'OtIGBoLaoeisfbjDmi5Ibo8E04UyYGM0vdXEetkanidlYYbmkPEoJA==')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'190'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 19 May 2026 20:56:37 GMT'), (b'ETag', b'"1da070f0993788c8851a652170ff013aa54dd519"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a0cce85-2c2349f12641118861f75419'), (b'RateLimit', b'"resolvers";r=2947;t=23'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'J4oBwNT40ZDHH3ZbJ9wLIPeaSACKX_gio-axD-nyd1mvebGDCh9fdw=='), (b'Age', b'6768460')])
+01:04:17 INFO    httpx | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'HEAD']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to acquire lock 22913137203344 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/1da070f0993788c8851a652170ff013aa54dd519.lock
+01:04:17 DEBUG   filelock | Lock 22913137203344 acquired on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/1da070f0993788c8851a652170ff013aa54dd519.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'190'), (b'Connection', b'keep-alive'), (b'Date', b'Wed, 27 May 2026 08:17:27 GMT'), (b'ETag', b'"1da070f0993788c8851a652170ff013aa54dd519"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a16a897-631b6bab663e35cd4c76fccf;933fb5b3-2782-46f1-b15d-24e1f257b02e'), (b'RateLimit', b'"resolvers";r=2948;t=257'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'5c38ec7c405ec4b44b94cc5a9bb96e735b38267a'), (b'Accept-Ranges', b'bytes'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'0Ls0byaplL1UrooaXEpZTctHUOxwPLUlk7jIkVPjgqVhaT8YjCNt4g=='), (b'Age', b'6122810')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:17 DEBUG   filelock | Attempting to release lock 22913137203344 on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/1da070f0993788c8851a652170ff013aa54dd519.lock
+01:04:17 DEBUG   filelock | Lock 22913137203344 released on /vast/palmer/pi/garg/Patrick/regsearch/data/hf/hub/.locks/models--BAAI--bge-small-en-v1.5/1da070f0993788c8851a652170ff013aa54dd519.lock
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_headers.complete
+01:04:17 DEBUG   httpcore.http11 | send_request_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | send_request_body.complete
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Thu, 06 Aug 2026 05:04:17 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"24649-iqpisAl6QSnPFyKz+a0aQS3HJ2A"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a7415d1-42b545c17bc02eae7f3dc12e;fc5942b5-354f-43d9-974d-eac69fca0676'), (b'RateLimit', b'"api";r=496;t=282'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 dbe9bc01cb502cff54902dd8356e5fd8.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'JFK50-P9'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'k7zjVFHap4T998Q9sOcsA-xocOhHxaq0n2IusyqJFYnCnQYt2dMH_w==')])
+01:04:17 INFO    httpx | HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-small-en-v1.5 "HTTP/1.1 200 OK"
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.started request=<Request [b'GET']>
+01:04:17 DEBUG   httpcore.http11 | receive_response_body.complete
+01:04:17 DEBUG   httpcore.http11 | response_closed.started
+01:04:17 DEBUG   httpcore.http11 | response_closed.complete
+01:04:26 INFO    regsearch.retrieve.embed | embedded 256 passages (total 256)
+01:04:33 INFO    regsearch.retrieve.embed | embedded 256 passages (total 512)
+01:04:42 INFO    regsearch.retrieve.embed | embedded 256 passages (total 768)
+01:04:51 INFO    regsearch.retrieve.embed | embedded 256 passages (total 1024)
+01:04:58 INFO    regsearch.retrieve.embed | embedded 256 passages (total 1280)
+01:05:07 INFO    regsearch.retrieve.embed | embedded 256 passages (total 1536)
+01:05:16 INFO    regsearch.retrieve.embed | embedded 256 passages (total 1792)
+01:05:27 INFO    regsearch.retrieve.embed | embedded 256 passages (total 2048)
+01:05:39 INFO    regsearch.retrieve.embed | embedded 256 passages (total 2304)
+01:05:49 INFO    regsearch.retrieve.embed | embedded 256 passages (total 2560)
+01:06:00 INFO    regsearch.retrieve.embed | embedded 256 passages (total 2816)
+01:06:13 INFO    regsearch.retrieve.embed | embedded 256 passages (total 3072)
+01:06:24 INFO    regsearch.retrieve.embed | embedded 256 passages (total 3328)
+01:06:33 INFO    regsearch.retrieve.embed | embedded 256 passages (total 3584)
+01:06:41 INFO    regsearch.retrieve.embed | embedded 256 passages (total 3840)
+01:06:48 INFO    regsearch.retrieve.embed | embedded 256 passages (total 4096)
+01:06:57 INFO    regsearch.retrieve.embed | embedded 256 passages (total 4352)
+01:07:04 INFO    regsearch.retrieve.embed | embedded 256 passages (total 4608)
+01:07:14 INFO    regsearch.retrieve.embed | embedded 256 passages (total 4864)
+01:07:26 INFO    regsearch.retrieve.embed | embedded 256 passages (total 5120)
+01:07:38 INFO    regsearch.retrieve.embed | embedded 256 passages (total 5376)
+01:07:48 INFO    regsearch.retrieve.embed | embedded 256 passages (total 5632)
+01:08:00 INFO    regsearch.retrieve.embed | embedded 256 passages (total 5888)
+01:08:10 INFO    regsearch.retrieve.embed | embedded 256 passages (total 6144)
+01:08:18 INFO    regsearch.retrieve.embed | embedded 256 passages (total 6400)
+01:08:26 INFO    regsearch.retrieve.embed | embedded 256 passages (total 6656)
+01:08:33 INFO    regsearch.retrieve.embed | embedded 256 passages (total 6912)
+01:08:49 INFO    regsearch.retrieve.embed | embedded 256 passages (total 7168)
+01:08:56 INFO    regsearch.retrieve.embed | embedded 256 passages (total 7424)
+01:09:04 INFO    regsearch.retrieve.embed | embedded 256 passages (total 7680)
+01:09:12 INFO    regsearch.retrieve.embed | embedded 256 passages (total 7936)
+01:09:20 INFO    regsearch.retrieve.embed | embedded 256 passages (total 8192)
+01:09:27 INFO    regsearch.retrieve.embed | embedded 256 passages (total 8448)
+01:09:37 INFO    regsearch.retrieve.embed | embedded 256 passages (total 8704)
+01:09:44 INFO    regsearch.retrieve.embed | embedded 256 passages (total 8960)
+01:09:52 INFO    regsearch.retrieve.embed | embedded 256 passages (total 9216)
+01:10:00 INFO    regsearch.retrieve.embed | embedded 256 passages (total 9472)
+01:10:09 INFO    regsearch.retrieve.embed | embedded 256 passages (total 9728)
+01:10:17 INFO    regsearch.retrieve.embed | embedded 256 passages (total 9984)
+01:10:27 INFO    regsearch.retrieve.embed | embedded 256 passages (total 10240)
+01:10:37 INFO    regsearch.retrieve.embed | embedded 256 passages (total 10496)
+01:10:44 INFO    regsearch.retrieve.embed | embedded 256 passages (total 10752)
+01:10:52 INFO    regsearch.retrieve.embed | embedded 256 passages (total 11008)
+01:10:59 INFO    regsearch.retrieve.embed | embedded 256 passages (total 11264)
+01:11:07 INFO    regsearch.retrieve.embed | embedded 256 passages (total 11520)
+01:11:15 INFO    regsearch.retrieve.embed | embedded 256 passages (total 11776)
+01:11:24 INFO    regsearch.retrieve.embed | embedded 256 passages (total 12032)
+01:11:32 INFO    regsearch.retrieve.embed | embedded 256 passages (total 12288)
+01:11:42 INFO    regsearch.retrieve.embed | embedded 256 passages (total 12544)
+01:11:49 INFO    regsearch.retrieve.embed | embedded 256 passages (total 12800)
+01:11:56 INFO    regsearch.retrieve.embed | embedded 256 passages (total 13056)
+01:12:03 INFO    regsearch.retrieve.embed | embedded 256 passages (total 13312)
+01:12:12 INFO    regsearch.retrieve.embed | embedded 256 passages (total 13568)
+01:12:20 INFO    regsearch.retrieve.embed | embedded 256 passages (total 13824)
+01:12:28 INFO    regsearch.retrieve.embed | embedded 256 passages (total 14080)
+01:12:36 INFO    regsearch.retrieve.embed | embedded 256 passages (total 14336)
+01:12:45 INFO    regsearch.retrieve.embed | embedded 256 passages (total 14592)
+01:12:54 INFO    regsearch.retrieve.embed | embedded 256 passages (total 14848)
+01:13:01 INFO    regsearch.retrieve.embed | embedded 256 passages (total 15104)
+01:13:07 INFO    regsearch.retrieve.embed | embedded 256 passages (total 15360)
+01:13:13 INFO    regsearch.retrieve.embed | embedded 256 passages (total 15616)
+01:13:25 INFO    regsearch.retrieve.embed | embedded 256 passages (total 15872)
+01:13:33 INFO    regsearch.retrieve.embed | embedded 256 passages (total 16128)
+01:13:42 INFO    regsearch.retrieve.embed | embedded 256 passages (total 16384)
+01:13:49 INFO    regsearch.retrieve.embed | embedded 256 passages (total 16640)
+01:13:59 INFO    regsearch.retrieve.embed | embedded 256 passages (total 16896)
+01:14:06 INFO    regsearch.retrieve.embed | embedded 256 passages (total 17152)
+01:14:12 INFO    regsearch.retrieve.embed | embedded 256 passages (total 17408)
+01:14:18 INFO    regsearch.retrieve.embed | embedded 256 passages (total 17664)
+01:14:26 INFO    regsearch.retrieve.embed | embedded 256 passages (total 17920)
+01:14:37 INFO    regsearch.retrieve.embed | embedded 256 passages (total 18176)
+01:14:45 INFO    regsearch.retrieve.embed | embedded 256 passages (total 18432)
+01:14:53 INFO    regsearch.retrieve.embed | embedded 256 passages (total 18688)
+01:14:58 INFO    regsearch.retrieve.embed | embedded 256 passages (total 18944)
+01:15:06 INFO    regsearch.retrieve.embed | embedded 256 passages (total 19200)
+01:15:15 INFO    regsearch.retrieve.embed | embedded 256 passages (total 19456)
+01:15:22 INFO    regsearch.retrieve.embed | embedded 256 passages (total 19712)
+01:15:29 INFO    regsearch.retrieve.embed | embedded 256 passages (total 19968)
+01:15:38 INFO    regsearch.retrieve.embed | embedded 256 passages (total 20224)
+01:15:45 INFO    regsearch.retrieve.embed | embedded 256 passages (total 20480)
+01:15:53 INFO    regsearch.retrieve.embed | embedded 256 passages (total 20736)
+01:16:01 INFO    regsearch.retrieve.embed | embedded 256 passages (total 20992)
+01:16:09 INFO    regsearch.retrieve.embed | embedded 256 passages (total 21248)
+01:16:17 INFO    regsearch.retrieve.embed | embedded 256 passages (total 21504)
+01:16:26 INFO    regsearch.retrieve.embed | embedded 256 passages (total 21760)
+01:16:35 INFO    regsearch.retrieve.embed | embedded 256 passages (total 22016)
+01:16:42 INFO    regsearch.retrieve.embed | embedded 256 passages (total 22272)
+01:16:52 INFO    regsearch.retrieve.embed | embedded 256 passages (total 22528)
+01:17:00 INFO    regsearch.retrieve.embed | embedded 256 passages (total 22784)
+01:17:07 INFO    regsearch.retrieve.embed | embedded 256 passages (total 23040)
+01:17:15 INFO    regsearch.retrieve.embed | embedded 256 passages (total 23296)
+01:17:24 INFO    regsearch.retrieve.embed | embedded 256 passages (total 23552)
+01:17:33 INFO    regsearch.retrieve.embed | embedded 256 passages (total 23808)
+01:17:40 INFO    regsearch.retrieve.embed | embedded 256 passages (total 24064)
+01:17:48 INFO    regsearch.retrieve.embed | embedded 256 passages (total 24320)
+01:17:58 INFO    regsearch.retrieve.embed | embedded 256 passages (total 24576)
+01:18:08 INFO    regsearch.retrieve.embed | embedded 256 passages (total 24832)
+01:18:17 INFO    regsearch.retrieve.embed | embedded 256 passages (total 25088)
+01:18:27 INFO    regsearch.retrieve.embed | embedded 256 passages (total 25344)
+01:18:34 INFO    regsearch.retrieve.embed | embedded 256 passages (total 25600)
+01:18:41 INFO    regsearch.retrieve.embed | embedded 256 passages (total 25856)
+01:18:48 INFO    regsearch.retrieve.embed | embedded 256 passages (total 26112)
+01:18:58 INFO    regsearch.retrieve.embed | embedded 256 passages (total 26368)
+01:19:04 INFO    regsearch.retrieve.embed | embedded 256 passages (total 26624)
+01:19:12 INFO    regsearch.retrieve.embed | embedded 256 passages (total 26880)
+01:19:18 INFO    regsearch.retrieve.embed | embedded 256 passages (total 27136)
+01:19:24 INFO    regsearch.retrieve.embed | embedded 256 passages (total 27392)
+01:19:32 INFO    regsearch.retrieve.embed | embedded 256 passages (total 27648)
+01:19:40 INFO    regsearch.retrieve.embed | embedded 256 passages (total 27904)
+01:19:47 INFO    regsearch.retrieve.embed | embedded 256 passages (total 28160)
+01:19:56 INFO    regsearch.retrieve.embed | embedded 256 passages (total 28416)
+01:20:06 INFO    regsearch.retrieve.embed | embedded 256 passages (total 28672)
+01:20:14 INFO    regsearch.retrieve.embed | embedded 256 passages (total 28928)
+01:20:24 INFO    regsearch.retrieve.embed | embedded 256 passages (total 29184)
+01:20:33 INFO    regsearch.retrieve.embed | embedded 256 passages (total 29440)
+01:20:41 INFO    regsearch.retrieve.embed | embedded 256 passages (total 29696)
+01:20:49 INFO    regsearch.retrieve.embed | embedded 256 passages (total 29952)
+01:21:01 INFO    regsearch.retrieve.embed | embedded 256 passages (total 30208)
+01:21:09 INFO    regsearch.retrieve.embed | embedded 256 passages (total 30464)
+01:21:18 INFO    regsearch.retrieve.embed | embedded 256 passages (total 30720)
+01:21:27 INFO    regsearch.retrieve.embed | embedded 256 passages (total 30976)
+01:21:37 INFO    regsearch.retrieve.embed | embedded 256 passages (total 31232)
+01:21:46 INFO    regsearch.retrieve.embed | embedded 256 passages (total 31488)
+01:21:55 INFO    regsearch.retrieve.embed | embedded 256 passages (total 31744)
+01:22:03 INFO    regsearch.retrieve.embed | embedded 256 passages (total 32000)
+01:22:14 INFO    regsearch.retrieve.embed | embedded 256 passages (total 32256)
+01:22:21 INFO    regsearch.retrieve.embed | embedded 256 passages (total 32512)
+01:22:29 INFO    regsearch.retrieve.embed | embedded 256 passages (total 32768)
+01:22:40 INFO    regsearch.retrieve.embed | embedded 256 passages (total 33024)
+01:22:49 INFO    regsearch.retrieve.embed | embedded 256 passages (total 33280)
+01:22:59 INFO    regsearch.retrieve.embed | embedded 256 passages (total 33536)
+01:23:08 INFO    regsearch.retrieve.embed | embedded 256 passages (total 33792)
+01:23:18 INFO    regsearch.retrieve.embed | embedded 256 passages (total 34048)
+01:23:27 INFO    regsearch.retrieve.embed | embedded 256 passages (total 34304)
+01:23:34 INFO    regsearch.retrieve.embed | embedded 256 passages (total 34560)
+01:23:44 INFO    regsearch.retrieve.embed | embedded 256 passages (total 34816)
+01:23:51 INFO    regsearch.retrieve.embed | embedded 256 passages (total 35072)
+01:24:03 INFO    regsearch.retrieve.embed | embedded 256 passages (total 35328)
+01:24:14 INFO    regsearch.retrieve.embed | embedded 256 passages (total 35584)
+01:24:21 INFO    regsearch.retrieve.embed | embedded 256 passages (total 35840)
+01:24:29 INFO    regsearch.retrieve.embed | embedded 256 passages (total 36096)
+01:24:37 INFO    regsearch.retrieve.embed | embedded 256 passages (total 36352)
+01:24:46 INFO    regsearch.retrieve.embed | embedded 256 passages (total 36608)
+01:24:54 INFO    regsearch.retrieve.embed | embedded 256 passages (total 36864)
+01:25:04 INFO    regsearch.retrieve.embed | embedded 256 passages (total 37120)
+01:25:11 INFO    regsearch.retrieve.embed | embedded 256 passages (total 37376)
+01:25:23 INFO    regsearch.retrieve.embed | embedded 256 passages (total 37632)
+01:25:29 INFO    regsearch.retrieve.embed | embedded 256 passages (total 37888)
+01:25:40 INFO    regsearch.retrieve.embed | embedded 256 passages (total 38144)
+01:25:48 INFO    regsearch.retrieve.embed | embedded 256 passages (total 38400)
+01:25:57 INFO    regsearch.retrieve.embed | embedded 256 passages (total 38656)
+01:26:08 INFO    regsearch.retrieve.embed | embedded 256 passages (total 38912)
+01:26:17 INFO    regsearch.retrieve.embed | embedded 256 passages (total 39168)
+01:26:28 INFO    regsearch.retrieve.embed | embedded 256 passages (total 39424)
