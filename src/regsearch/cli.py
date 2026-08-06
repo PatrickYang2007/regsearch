@@ -65,6 +65,42 @@ def stats() -> None:
     console.print(t)
 
 
+@app.command()
+def embed(
+    batch_size: int = typer.Option(256, help="Encoder batch size."),
+    limit: int = typer.Option(None, help="Stop after N passages (smoke tests)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Encode passages that have no embedding yet. Resumable."""
+    _setup_logging(verbose)
+    from regsearch.retrieve.embed import embed_corpus
+
+    n = embed_corpus(batch_size=batch_size, limit=limit)
+    console.print(f"[green]embedded[/green] {n:,} passages")
+
+
+@app.command()
+def search(
+    query: str = typer.Argument(..., help="Query text."),
+    arm: str = typer.Option("hybrid", help="fts | dense | hybrid | hybrid_rerank"),
+    k: int = typer.Option(10, "-k", help="Results to show."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Run one retrieval arm and print the ranked hits."""
+    _setup_logging(verbose)
+    from regsearch.retrieve.search import search as run_search
+
+    resp = run_search(query, arm=arm, k=k)  # type: ignore[arg-type]
+    t = Table(title=f"{resp.arm}  ·  {resp.latency_ms:.1f} ms  ·  {query!r}")
+    t.add_column("#", justify="right", style="dim")
+    t.add_column("score", justify="right")
+    t.add_column("title", max_width=48)
+    t.add_column("passage", max_width=64)
+    for h in resp.hits:
+        t.add_row(str(h.rank), f"{h.score:.4f}", h.title, h.text[:200])
+    console.print(t)
+
+
 @app.command("build-index")
 def build_index(
     m: int = typer.Option(16, help="HNSW m."),
