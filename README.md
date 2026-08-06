@@ -7,9 +7,12 @@ passages from the literature. Built to compare retrieval strategies honestly:
 every arm is measured on the same labelled query set and reported in one
 ablation table.
 
-> **Status: in progress.** Ingestion, storage, and retrieval are landing first;
-> the reranker and eval table are next. Numbers below are placeholders until the
-> eval harness runs — they are not results yet.
+> **Status: in progress.** Corpus is loaded (19,791 documents / 99,567
+> passages) and lexical retrieval works. Embedding, the reranker fine-tune, and
+> the eval table are outstanding. **There are no results yet** — the ablation
+> table below is empty on purpose, and nothing here should be quoted as a
+> measurement until `regsearch eval` has run. See [NOTES.md](NOTES.md) for the
+> dev log and current state.
 
 ## Why this exists
 
@@ -62,6 +65,23 @@ training pairs at no annotation cost.
 Weak labels train the model; a separate hand-judged query set evaluates it.
 These are kept in different tables (`eval_queries.origin`) so training signal
 never leaks into the reported numbers.
+
+## Results
+
+Not measured yet. The harness (`regsearch eval`) fills this in across all four
+arms on a shared query set:
+
+| arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
+|---|---:|---:|---:|---:|---:|
+| `fts` | — | — | — | — | — |
+| `dense` | — | — | — | — | — |
+| `hybrid` | — | — | — | — | — |
+| `hybrid+rerank` | — | — | — | — | — |
+
+Metrics are computed at the document level (passages collapse to their parent
+document in first-appearance order), so an arm cannot win by returning several
+passages from one paper. Latency is wall-clock per query at p50/p95 rather than
+a mean, which hides the tail.
 
 ## Setup
 
