@@ -103,9 +103,16 @@ def dense_search(query: str, k: int | None = None, ef_search: int = 100) -> list
         LIMIT %(k)s
     """
     with db.connection() as conn:
-        # ef_search trades recall against latency at query time. Set per
-        # session so it cannot leak into other connections in the pool.
-        conn.execute("SET LOCAL hnsw.ef_search = %s", (ef_search,))
+        # ef_search trades recall against latency at query time. Scoped to the
+        # transaction so it cannot leak into other connections in the pool.
+        #
+        # set_config(..., is_local=true), not `SET LOCAL`: SET is a utility
+        # statement and takes no bind parameters, so the placeholder arrives at
+        # the server as a literal "$1" and errors. set_config is an ordinary
+        # function call with identical semantics. Its value argument is text.
+        conn.execute(
+            "SELECT set_config('hnsw.ef_search', %s, true)", (str(ef_search),)
+        )
         rows = conn.execute(sql, {"v": qvec, "k": k}).fetchall()
 
     return [

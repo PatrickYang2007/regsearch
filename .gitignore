@@ -7,3 +7,6 @@ __pycache__/
 .env
 
 data/run/pg_password
+
+# Slurm job logs: per-batch progress noise, regenerated on every run.
+slurm/logs/
