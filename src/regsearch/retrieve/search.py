@@ -40,6 +40,37 @@ class SearchResponse:
 
 
 # ------------------------------------------------------------------ lexical
+# websearch_to_tsquery ANDs its terms. That is correct for short keyword
+# queries and catastrophic for long ones: a 10-word title requires a passage
+# containing all 10 stems, which on this corpus matched 1 passage out of 99,567
+# and pinned the arm's Recall@50 at 0.0013. Retrieval wants "rank by how many
+# terms match", not "require every term".
+#
+# There is no or_to_tsquery in Postgres, so the parse is rewritten: split the
+# tsquery on its top-level AND, OR the positive operands back together, and
+# re-AND the negated ones. Negation must stay conjunctive -- folding !x into
+# the OR would make the query match every passage that merely lacks x.
+# Phrase operands ('a' <-> 'b', from quoted input) survive intact because the
+# split is on ' & ' only.
+_FTS_OR_TSQUERY = """
+    WITH parsed AS (
+        SELECT websearch_to_tsquery('english', %(q)s) AS tq
+    ),
+    parts AS (
+        SELECT unnest(string_to_array(tq::text, ' & ')) AS part FROM parsed
+    ),
+    agg AS (
+        SELECT string_agg(part, ' | ') FILTER (WHERE part NOT LIKE '!%%') AS pos,
+               string_agg(part, ' & ') FILTER (WHERE part LIKE '!%%')     AS neg
+        FROM parts
+    )
+    SELECT concat_ws(' & ', '(' || pos || ')', neg)::tsquery AS q
+    FROM agg WHERE pos IS NOT NULL
+"""
+
+_FTS_AND_TSQUERY = "SELECT websearch_to_tsquery('english', %(q)s) AS q"
+
+
 def fts_search(query: str, k: int | None = None) -> list[Hit]:
     """Postgres full-text search ranked by ts_rank_cd.
 
@@ -48,18 +79,22 @@ def fts_search(query: str, k: int | None = None) -> list[Hit]:
     to_tsquery does readily.
 
     ts_rank_cd is a length-normalised TF-IDF variant -- cover density, not BM25.
-    Named `fts` throughout so the eval table does not overclaim.
+    Named `fts` throughout so the eval table does not overclaim. Note that
+    ts_rank_cd already scores partial matches by cover density, so ORing the
+    terms changes which passages are *candidates*, not how they are ranked.
     """
     s = get_settings()
     k = k or s.bm25_topk
 
-    sql = """
+    qsql = _FTS_OR_TSQUERY if s.fts_or_semantics else _FTS_AND_TSQUERY
+    sql = f"""
+        WITH tsq AS ({qsql})
         SELECT p.passage_id, p.doc_id, p.text, d.title,
-               ts_rank_cd(p.tsv, q, 32) AS score
+               ts_rank_cd(p.tsv, tsq.q, 32) AS score
         FROM passages p
         JOIN documents d USING (doc_id),
-             websearch_to_tsquery('english', %(q)s) q
-        WHERE p.tsv @@ q
+             tsq
+        WHERE p.tsv @@ tsq.q
         ORDER BY score DESC, p.passage_id
         LIMIT %(k)s
     """

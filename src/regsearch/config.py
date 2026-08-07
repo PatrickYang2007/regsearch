@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     dense_topk: int = 100
     rrf_k: int = 60
     rerank_topk: int = 100
+    # OR the lexical query terms instead of ANDing them. websearch_to_tsquery
+    # ANDs by default, which requires a passage to contain *every* query term;
+    # on the ~10-word natural-language queries this eval uses, that matches
+    # almost nothing and the arm scores ~0. Off restores the AND behaviour,
+    # which is the right choice only for short keyword queries.
+    fts_or_semantics: bool = True
 
     @property
     def resolved_host(self) -> str:
