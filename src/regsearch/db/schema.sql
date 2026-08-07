@@ -35,6 +35,26 @@ CREATE INDEX IF NOT EXISTS documents_pmid_idx  ON documents (pmid) WHERE pmid IS
 CREATE INDEX IF NOT EXISTS documents_pmcid_idx ON documents (pmcid) WHERE pmcid IS NOT NULL;
 CREATE INDEX IF NOT EXISTS documents_year_idx  ON documents (pub_year);
 
+-- One paper can enter the corpus several times: a bioRxiv preprint (source PPR)
+-- and its published version (MED) are distinct Europe PMC records with distinct
+-- DOIs, and patent families repeat wholesale. 1,335 such clusters exist here,
+-- 7% of the corpus.
+--
+-- This matters for evaluation, not storage. A qrel naming the published record
+-- scores a *miss* when retrieval surfaces the preprint, and both twins consume
+-- separate slots in the top-k -- so every arm is deflated, and not equally,
+-- which distorts the arm-vs-arm comparison the whole project exists to make.
+--
+-- Rather than delete rows (which would throw away real records and break the
+-- citation graph's foreign keys), each document points at a cluster
+-- representative and evaluation scores at cluster level. NULL means "no
+-- duplicate known"; readers should COALESCE to doc_id.
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS canonical_doc_id BIGINT
+    REFERENCES documents(doc_id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS documents_canonical_idx ON documents (canonical_doc_id)
+    WHERE canonical_doc_id IS NOT NULL;
+
 -- ----------------------------------------------------------------- passages
 CREATE TABLE IF NOT EXISTS passages (
     passage_id  BIGSERIAL PRIMARY KEY,

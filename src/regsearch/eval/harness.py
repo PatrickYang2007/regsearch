@@ -84,7 +84,17 @@ def evaluate_arm(
     eval_set: list[dict[str, Any]],
     k_recall: int = 50,
     k_ndcg: int = 10,
+    canonical_map: dict[int, int] | None = None,
 ) -> ArmResult:
+    """Score one arm.
+
+    `canonical_map` collapses duplicate records (preprint/published twins) onto
+    a cluster representative before scoring. Without it an arm that returns the
+    preprint when the qrel names the published version is charged a miss for
+    finding the right paper. Pass None to score raw doc_ids.
+    """
+    cmap = canonical_map or {}
+
     recalls: list[float] = []
     ndcgs: list[float] = []
     rrs: list[float] = []
@@ -92,7 +102,12 @@ def evaluate_arm(
     per_query: list[dict[str, Any]] = []
 
     for item in eval_set:
-        qrels: dict[int, int] = item["qrels"]
+        # Two twins can both be judged relevant; collapsing them must keep the
+        # stronger grade rather than whichever happened to be iterated last.
+        qrels: dict[int, int] = {}
+        for d, rel in item["qrels"].items():
+            c = cmap.get(d, d)
+            qrels[c] = max(qrels.get(c, 0), rel)
         relevant = {d for d, rel in qrels.items() if rel > 0}
 
         t0 = time.perf_counter()
@@ -101,12 +116,15 @@ def evaluate_arm(
 
         # Passages -> documents, keeping first-appearance order. Without this
         # an arm returning 3 passages from one paper would look like 3 hits.
+        # Canonicalising here also means a preprint and its published twin
+        # collapse to one rank slot instead of occupying two.
         seen: set[int] = set()
         doc_ranking: list[int] = []
         for h in resp.hits:
-            if h.doc_id not in seen:
-                seen.add(h.doc_id)
-                doc_ranking.append(h.doc_id)
+            doc = cmap.get(h.doc_id, h.doc_id)
+            if doc not in seen:
+                seen.add(doc)
+                doc_ranking.append(doc)
 
         r = recall_at_k(doc_ranking, relevant, k_recall)
         n = ndcg_at_k(doc_ranking, qrels, k_ndcg)
@@ -144,6 +162,7 @@ def run_ablation(
     arms: list[Arm] | None = None,
     split: str = "test",
     origin: str = "manual",
+    canonicalize: bool = True,
 ) -> list[ArmResult]:
     arms = arms or ["fts", "dense", "hybrid", "hybrid_rerank"]
     eval_set = load_eval_set(split=split, origin=origin)
@@ -153,5 +172,15 @@ def run_ablation(
             "Run `regsearch build-evalset` first."
         )
 
-    log.info("evaluating %d arms over %d queries", len(arms), len(eval_set))
-    return [evaluate_arm(a, eval_set) for a in arms]
+    cmap = db.load_canonical_map() if canonicalize else {}
+    if canonicalize and not cmap:
+        log.warning(
+            "canonicalize=True but no duplicate clusters are recorded; "
+            "run `regsearch dedup-docs` or numbers will be deflated by "
+            "preprint/published twins scoring as misses"
+        )
+    log.info(
+        "evaluating %d arms over %d queries (canonicalize=%s, %d merged docs)",
+        len(arms), len(eval_set), canonicalize, len(cmap),
+    )
+    return [evaluate_arm(a, eval_set, canonical_map=cmap) for a in arms]

@@ -132,12 +132,29 @@ def build_evalset(
     )
 
 
+@app.command("dedup-docs")
+def dedup_docs(verbose: bool = typer.Option(False, "--verbose", "-v")) -> None:
+    """Cluster duplicate records (preprint/published twins) onto a canonical id."""
+    _setup_logging(verbose)
+    db.apply_schema()
+    res = db.rebuild_canonical_docs()
+    console.print(
+        f"[green]clustered[/green] {res['merged']:,} duplicate documents "
+        f"into {res['clusters']:,} canonical records"
+    )
+
+
 @app.command("eval")
 def eval_cmd(
     split: str = typer.Option("test"),
     origin: str = typer.Option("citation", help="citation | manual"),
     arms: str = typer.Option("fts,dense,hybrid,hybrid_rerank"),
     out: str = typer.Option(None, help="Write the table to a markdown file."),
+    canonicalize: bool = typer.Option(
+        True,
+        "--canonicalize/--no-canonicalize",
+        help="Score duplicate records (preprint/published) as one document.",
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Run the ablation across retrieval arms."""
@@ -148,6 +165,7 @@ def eval_cmd(
         arms=[a.strip() for a in arms.split(",") if a.strip()],  # type: ignore[arg-type]
         split=split,
         origin=origin,
+        canonicalize=canonicalize,
     )
 
     t = Table(title=f"ablation · split={split} · origin={origin} · n={results[0].n_queries}")
@@ -177,8 +195,20 @@ def eval_cmd(
         ]
         lines.append("")
         lines.append(
-            f"_n={results[0].n_queries} queries, split={split}, origin={origin}._"
+            f"_n={results[0].n_queries} queries, split={split}, origin={origin}, "
+            f"canonicalize={canonicalize}._"
         )
+        if origin == "citation":
+            # The table must carry its own caveat: detached from this footer it
+            # reads as a relevance measurement, which it is not.
+            lines.append("")
+            lines.append(
+                "**Weak supervision.** Labels are citation-derived, not human "
+                "relevance judgements: a query is a paper's title and its "
+                "positives are the papers it cites. The same signal trains the "
+                "reranker, so `hybrid_rerank` rows are scored against the "
+                "family of labels they learn from. Not a human-judged result."
+            )
         Path(out).write_text("\n".join(lines) + "\n")
         console.print(f"[green]wrote[/green] {out}")
 

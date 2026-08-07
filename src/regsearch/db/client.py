@@ -102,6 +102,92 @@ def analyze() -> None:
         conn.commit()
 
 
+# ------------------------------------------------------- duplicate clustering
+# Title after stripping every non-alphanumeric. Punctuation and case are the
+# only things that reliably differ between a preprint and its published record
+# ("Decoding cnidarian cell type gene regulation" vs the same with a trailing
+# period), so normalising them away is what makes the two collide.
+#
+# DOI cannot be the key: a preprint keeps its 10.1101/... DOI after publication
+# and the journal assigns a different one, so the twins never share a DOI.
+_NORM_TITLE = "lower(regexp_replace(title, '[^a-z0-9]', '', 'gi'))"
+
+# Below this length a normalised title is too generic to be evidence of
+# identity on its own. Every cluster observed under it on this corpus was in
+# fact a genuine duplicate (patent families), so the guard costs nothing here
+# and protects against a future corpus where it would not.
+MIN_TITLE_CHARS = 10
+
+
+def rebuild_canonical_docs() -> dict[str, int]:
+    """Point every document at its cluster representative. Idempotent.
+
+    The representative prefers a published record over a preprint, then the
+    lowest doc_id for determinism -- two runs must agree, or eval numbers from
+    different runs are not comparable.
+    """
+    sql = f"""
+        WITH norm AS (
+            SELECT doc_id, source, {_NORM_TITLE} AS nt
+            FROM documents
+            WHERE title IS NOT NULL
+              AND length({_NORM_TITLE}) >= %(min_chars)s
+        ),
+        ranked AS (
+            SELECT doc_id,
+                   first_value(doc_id) OVER (
+                       PARTITION BY nt
+                       -- PPR (preprint) sorts last, so the published record
+                       -- wins the cluster whenever one exists.
+                       ORDER BY (source = 'PPR'), doc_id
+                   ) AS canon
+            FROM norm
+        )
+        UPDATE documents d
+           SET canonical_doc_id = r.canon
+          FROM ranked r
+         WHERE d.doc_id = r.doc_id
+           AND d.canonical_doc_id IS DISTINCT FROM r.canon
+    """
+    with connection() as conn:
+        # Documents no longer meeting the rule (title edited by a re-ingest)
+        # must lose a stale pointer, or a cluster can outlive its evidence.
+        conn.execute("UPDATE documents SET canonical_doc_id = NULL")
+        conn.execute(sql, {"min_chars": MIN_TITLE_CHARS})
+        row = conn.execute(
+            """
+            SELECT count(*) FILTER (WHERE canonical_doc_id <> doc_id) AS merged,
+                   count(DISTINCT canonical_doc_id)
+                     FILTER (WHERE canonical_doc_id <> doc_id) AS clusters
+            FROM documents
+            """
+        ).fetchone()
+        conn.commit()
+
+    log.info(
+        "canonical docs: %s documents merged into %s clusters",
+        row["merged"], row["clusters"],
+    )
+    return {"merged": row["merged"], "clusters": row["clusters"]}
+
+
+def load_canonical_map() -> dict[int, int]:
+    """{doc_id: canonical_doc_id} for merged documents only.
+
+    Self-mappings are omitted -- callers should treat a missing key as identity,
+    which keeps this dict small (thousands, not the whole corpus).
+    """
+    with connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT doc_id, canonical_doc_id
+            FROM documents
+            WHERE canonical_doc_id IS NOT NULL AND canonical_doc_id <> doc_id
+            """
+        ).fetchall()
+    return {r["doc_id"]: r["canonical_doc_id"] for r in rows}
+
+
 # -------------------------------------------------------------------- upsert
 def upsert_documents(rows: Sequence[dict[str, Any]]) -> dict[tuple[str, str], int]:
     """Insert documents, returning {(source, ext_id): doc_id} for all rows.
