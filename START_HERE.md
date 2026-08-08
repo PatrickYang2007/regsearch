@@ -101,9 +101,16 @@ difference. It's named `fts` everywhere on purpose.
 
 ```bash
 cd /vast/palmer/pi/garg/Patrick/regsearch
+source .venv/bin/activate     # <- without this, "regsearch: command not found"
 scripts/pg_start.sh
 regsearch stats
 ```
+
+**`regsearch` is not a system command.** It's installed inside this project's
+virtualenv, so a fresh terminal has never heard of it. Either activate the venv
+as above, or skip activation and spell out the path — `.venv/bin/regsearch
+stats` — or use `uv run regsearch stats`. All three are equivalent; activating
+once per terminal is the least typing.
 
 **Why you have to do this every time:** Postgres here isn't a background service
 like on a laptop. You have no root on the cluster, so it runs as an ordinary
@@ -125,15 +132,11 @@ eval qrels         8,075
 
 If any number is different, stop and find out why before running anything else.
 
-### Also set this before anything that loads a model
+### Model weights: nothing to do
 
-```bash
-export HF_HOME="$PWD/data/hf"
-```
-
-Without it, model weights download into your home directory instead of the
-project. Home is quota-limited (you're at ~30 GB of 125 GB). This is currently
-only set inside `slurm/embed.sbatch`, not for interactive use — see §6.
+`HF_HOME` is set automatically in `config.py`, so model weights land in
+`data/hf` on `/vast` rather than eating your home quota. You do **not** need to
+export anything. Both models are already cached there, so they load offline.
 
 ### Try a search
 
@@ -212,9 +215,8 @@ repo is weak supervision — which is why `load_eval_set` refuses to default to 
 **Postgres dies with your allocation.** Covered above. It's the single most
 common "why is nothing working" cause. Run `scripts/pg_start.sh`.
 
-**`HF_HOME` isn't set outside the sbatch script.** So interactive runs download
-model weights to your home quota, defeating the thing `embed.sbatch` was written
-to avoid. Worth fixing in `config.py` so every entry point gets it.
+**`regsearch: command not found`** means you haven't activated the virtualenv in
+this terminal. `source .venv/bin/activate`. It is not installed system-wide.
 
 **`slurm/embed.sbatch` has a comment that is wrong.** It claims GPU jobs reach
 Postgres "over the shared-filesystem Unix socket." That's the bug that cost two

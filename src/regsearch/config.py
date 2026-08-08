@@ -14,6 +14,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
+# Keep model weights on /vast rather than the home quota, which is small and
+# shared with every other project on this account.
+#
+# This has to happen at import rather than in the entry points: huggingface_hub
+# resolves its cache location once, when it is first imported. Every module that
+# pulls in sentence-transformers does so lazily inside a function body, and they
+# all import this module first, so setting it here lands before anything reads
+# it. Setting it in slurm/embed.sbatch alone was not enough -- that left every
+# interactive run downloading into $HOME.
+#
+# setdefault, not assignment: an HF_HOME already in the environment is a
+# deliberate choice by whoever set it and should win.
+os.environ.setdefault("HF_HOME", str(PROJECT_ROOT / "data" / "hf"))
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
