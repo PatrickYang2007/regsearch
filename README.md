@@ -15,7 +15,8 @@ ablation table.
 > weak supervision**, not human relevance judgements — a hand-judged set is
 > still outstanding. And **the reranker is an off-the-shelf checkpoint**, not a
 > fine-tuned one; that training run has not happened yet. See
-> [NOTES.md](NOTES.md) for the dev log and current state.
+> [START_HERE.md](START_HERE.md) for orientation and the next steps, or
+> [NOTES.md](NOTES.md) for the full dev log.
 
 ## Why this exists
 
