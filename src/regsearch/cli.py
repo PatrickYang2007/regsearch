@@ -213,6 +213,122 @@ def eval_cmd(
         console.print(f"[green]wrote[/green] {out}")
 
 
+@app.command("export-pool")
+def export_pool(
+    out: str = typer.Option("data/judging_pool.csv", help="CSV to write."),
+    depth: int = typer.Option(10, help="Top-n taken from each arm."),
+    arms: str = typer.Option("fts,dense,hybrid", help="Arms to pool from."),
+    limit: int = typer.Option(None, help="Use only the first N queries."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Emit pooled candidates for HUMAN relevance judging.
+
+    Pooled across arms, not taken from one: judging a single arm's output biases
+    the qrels toward it, because anything only the other arms found is scored
+    irrelevant purely for never having been looked at.
+
+    The `relevance` column is left blank on purpose. Fill it in by hand with
+    0-3, then load it back with `regsearch import-qrels`. Do not generate these
+    labels with a model -- the reranker trains on citation-derived weak
+    supervision, and a model-labelled test set would be scored against the same
+    family of signal it learned from, which measures nothing.
+    """
+    _setup_logging(verbose)
+    from pathlib import Path
+
+    from regsearch.eval.build import export_pool_for_judging
+    from regsearch.eval.manual_queries import get_manual_queries
+
+    queries = get_manual_queries(limit)
+    n = export_pool_for_judging(
+        queries=queries,
+        out_path=Path(out),
+        arms=[a.strip() for a in arms.split(",") if a.strip()],  # type: ignore[arg-type]
+        depth=depth,
+    )
+    console.print(
+        f"[green]wrote[/green] {n:,} candidates for {len(queries)} queries to {out}\n"
+        f"Fill the [cyan]relevance[/cyan] column (0-3) by hand, then run: "
+        f"[cyan]regsearch import-qrels {out}[/cyan]"
+    )
+
+
+@app.command("import-qrels")
+def import_qrels_cmd(
+    csv_path: str = typer.Argument(..., help="Hand-filled judging CSV."),
+    split: str = typer.Option("test", help="Split to file these judgements under."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Load hand-filled judgements back as origin='manual'.
+
+    Rows with an empty relevance cell are SKIPPED, not treated as irrelevant --
+    "nobody judged this" and "a human judged this irrelevant" are different
+    facts, and conflating them silently invents negative labels.
+    """
+    _setup_logging(verbose)
+    from pathlib import Path
+
+    from regsearch.eval.build import import_qrels
+
+    res = import_qrels(Path(csv_path), split=split)
+    console.print(
+        f"[green]imported[/green] {res['qrels']:,} judgements as origin='manual'\n"
+        f"Evaluate them with: [cyan]regsearch eval --origin manual[/cyan]"
+    )
+
+
+@app.command("train-reranker")
+def train_reranker_cmd(
+    epochs: int = typer.Option(1),
+    batch_size: int = typer.Option(32),
+    lr: float = typer.Option(2e-5),
+    max_negatives_per_query: int = typer.Option(8),
+    limit: int = typer.Option(None, help="Use only the first N training queries."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Fine-tune the cross-encoder on citation-derived weak supervision.
+
+    Wants a GPU: `sbatch slurm/finetune_rerank.sbatch`. On CPU this is hours.
+
+    Writes to data/models/reranker/, which `retrieve.rerank` prefers over the
+    public checkpoint automatically -- so a successful run silently changes what
+    the `hybrid_rerank` arm means. Re-run `regsearch eval` afterwards.
+    """
+    _setup_logging(verbose)
+    # Imported inside the body: train_rerank pulls in torch and
+    # sentence-transformers, and a module-level import would make every
+    # `regsearch stats` on a login node pay for them.
+    from regsearch.retrieve.train_rerank import train_reranker
+
+    meta = train_reranker(
+        epochs=epochs,
+        batch_size=batch_size,
+        lr=lr,
+        max_negatives_per_query=max_negatives_per_query,
+        limit=limit,
+    )
+    console.print(f"[green]trained[/green] -> {meta.get('output_dir')}")
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", help="Bind address."),
+    port: int = typer.Option(8000),
+    reload: bool = typer.Option(False, help="Auto-reload on code change (dev only)."),
+) -> None:
+    """Run the HTTP API.
+
+    Loopback by default. On a shared cluster node, binding 0.0.0.0 exposes an
+    unauthenticated search service to every other user on the box.
+    """
+    # Imported inside the body so `fastapi`/`uvicorn` are only required when
+    # actually serving -- they live in the `serve` extra precisely so the
+    # ingestion path stays installable without them.
+    from regsearch.api.app import run
+
+    run(host=host, port=port, reload=reload)
+
+
 @app.command("build-index")
 def build_index(
     m: int = typer.Option(16, help="HNSW m."),
