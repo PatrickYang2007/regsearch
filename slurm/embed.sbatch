@@ -10,10 +10,20 @@
 
 # Encode every passage lacking an embedding, then build the HNSW index.
 #
-# Postgres runs on the submitting node, not here, so this job connects over the
-# shared-filesystem Unix socket. That works because /vast is visible from every
-# node -- but it does mean the database must still be up when this job starts.
-# Check with: scripts/pg_start.sh (idempotent).
+# Postgres runs on the node that ran scripts/pg_start.sh, not here, so this job
+# connects over plain TCP: pg_start.sh records its hostname in
+# data/run/pg_host, config.Settings.resolved_host reads it, and the DSN dials
+# host:5432 with scram-sha-256 (password in data/run/pg_password, 0600).
+# pg_hba is restricted to RFC1918 ranges, so it is reachable from compute nodes
+# and not from off-cluster.
+#
+# NOT a Unix socket. The socket file lives on /vast and is visible from every
+# node, but a Unix socket is local IPC and cannot be connected to across hosts
+# -- that misreading cost two failed GPU jobs in session 1. Only same-node
+# clients use the socket.
+#
+# The database must still be up when this job starts: scripts/pg_start.sh
+# (idempotent), before sbatch.
 
 set -euo pipefail
 
