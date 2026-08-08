@@ -138,6 +138,50 @@ difference. It's named `fts` everywhere on purpose.
 
 ---
 
+## 3b. IN FLIGHT as of 2026-08-07 23:30 — check this first tomorrow
+
+A GPU fine-tune (**Slurm job 8740006**) was left running. It is the first real
+training run of the cross-encoder, so it changes what `hybrid_rerank` means.
+
+**Check whether it survived:**
+
+```bash
+sacct -j 8740006 --format=JobID,State,Elapsed,ExitCode
+ls data/models/reranker/          # checkpoint lands here if it worked
+tail -40 slurm/logs/rerank-ft-8740006.err
+```
+
+**If `data/models/reranker/` exists, `hybrid_rerank` is now a TRAINED model and
+every rerank number in this repo is out of date.** `retrieve/rerank.py` prefers
+that directory automatically, so the arm changed meaning the moment the file
+appeared — nothing announces it. Re-run the ablation before quoting anything:
+
+```bash
+regsearch eval --split test --origin citation --out docs/ablation.md
+```
+
+That re-run also clears the `⚠️ stale` markers on the `hybrid` /
+`hybrid_rerank` rows, which are stale for a *second* reason: they predate
+weighted fusion (`w_fts=0.5`).
+
+**Likely failure mode:** the job mines negatives by running live `hybrid`
+searches against Postgres, which lives in the OnDemand code-server allocation.
+If that allocation ended before mining finished (~35 min from the timestamp
+above), the job died with a connection error. That is recoverable — restart
+Postgres and resubmit:
+
+```bash
+scripts/pg_start.sh
+sbatch slurm/finetune_rerank.sbatch
+```
+
+Mining takes ~40 min for 619 queries and has no cache, so a resubmit re-pays it
+in full.
+
+**Also unfinished:** an agent was optimising the `fts` arm's 1.4 s latency and
+was cut off. It left `scripts/bench_fts.py` (uncommitted); `search.py` was never
+changed, so nothing is half-applied.
+
 ## 4. Getting it running
 
 ### Every single session, first thing
