@@ -7,12 +7,15 @@ passages from the literature. Built to compare retrieval strategies honestly:
 every arm is measured on the same labelled query set and reported in one
 ablation table.
 
-> **Status: in progress.** Corpus is loaded (19,791 documents / 99,567
-> passages) and lexical retrieval works. Embedding, the reranker fine-tune, and
-> the eval table are outstanding. **There are no results yet** — the ablation
-> table below is empty on purpose, and nothing here should be quoted as a
-> measurement until `regsearch eval` has run. See [NOTES.md](NOTES.md) for the
-> dev log and current state.
+> **Status: in progress.** Corpus loaded (19,791 documents / 99,567 passages),
+> fully embedded, HNSW index built, and all four arms run end to end. First
+> ablation table is below.
+>
+> Two caveats that apply to every number here. **The labels are citation-derived
+> weak supervision**, not human relevance judgements — a hand-judged set is
+> still outstanding. And **the reranker is an off-the-shelf checkpoint**, not a
+> fine-tuned one; that training run has not happened yet. See
+> [NOTES.md](NOTES.md) for the dev log and current state.
 
 ## Why this exists
 
@@ -68,20 +71,43 @@ never leaks into the reported numbers.
 
 ## Results
 
-Not measured yet. The harness (`regsearch eval`) fills this in across all four
-arms on a shared query set:
-
 | arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
 |---|---:|---:|---:|---:|---:|
-| `fts` | — | — | — | — | — |
-| `dense` | — | — | — | — | — |
-| `hybrid` | — | — | — | — | — |
-| `hybrid+rerank` | — | — | — | — | — |
+| `fts` | 0.0462 | 0.0146 | 0.0430 | 1434.4 | 3265.0 |
+| `dense` | **0.1236** | **0.0536** | **0.1100** | **38.3** | **50.3** |
+| `hybrid` | 0.0992 | 0.0339 | 0.0792 | 1409.1 | 3369.9 |
+| `hybrid_rerank` | 0.1212 | 0.0513 | 0.0971 | 9630.2 | 15192.2 |
+
+_n=171 test queries. **Weak supervision:** labels are citation-derived — a query
+is a paper's title, its positives are the papers it cites — not human relevance
+judgements. `hybrid_rerank` uses an off-the-shelf `ms-marco-MiniLM-L-6-v2`, not
+a fine-tuned model. Reproduce with `regsearch eval --split test --origin
+citation`._
+
+**Plain dense retrieval wins every metric, and is ~40× faster than the arms
+built on top of it.** Both of the more elaborate arms are worse:
+
+- `hybrid` (reciprocal rank fusion) *loses* to `dense`. RRF weights its inputs
+  equally by construction, so fusing a much weaker lexical arm into a strong
+  dense one gives the weak arm an equal vote and drags the result down.
+- `hybrid_rerank` does not recover it, because it reranks the already-degraded
+  fused candidate set — with a public checkpoint rather than a trained one.
+
+That is the ablation doing its job rather than a tidy result. The two follow-ups
+it points at are weighting the RRF arms instead of fusing them equally, and
+fine-tuning the reranker so that row reflects a trained model.
+
+The lexical arm's latency is its own open problem: ORing query terms takes it
+from ranking one matched passage to ranking ~32k, which is what buys the recall
+and what costs the 1.4 s. Capping the candidate set before `ts_rank_cd` is the
+next lever.
 
 Metrics are computed at the document level (passages collapse to their parent
 document in first-appearance order), so an arm cannot win by returning several
-passages from one paper. Latency is wall-clock per query at p50/p95 rather than
-a mean, which hides the tail.
+passages from one paper. Duplicate records — a preprint and its published
+version are separate Europe PMC rows — collapse to one canonical document, or
+retrieving the right paper under the wrong id would score as a miss. Latency is
+wall-clock per query at p50/p95 rather than a mean, which hides the tail.
 
 ## Setup
 

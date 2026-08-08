@@ -69,6 +69,18 @@ never been run. TREC-style pooling over all four arms, then hand-judge —
 number in the repo is weak supervision and `load_eval_set` correctly refuses to
 default to it.
 
+**Also now justified by the numbers, and both cheap:**
+
+**Weight the RRF arms.** `hybrid` currently *loses* to `dense` because RRF gives
+the much weaker `fts` arm an equal vote. A weighted fusion, or gating fts out
+when its top score is low, should at minimum stop fusion from being harmful.
+This is the cheapest available win in the table.
+
+**Cap the lexical candidate set.** `fts` p50 is 1434 ms because ORing terms
+takes it from ranking 1 passage to ranking ~32k. Restrict candidates before
+`ts_rank_cd` scores them — the recall came from OR'ing, but nothing requires
+ranking every match.
+
 Lower priority, tracked: real BM25 as a genuine fifth arm; `COPY` + single
 `UPDATE ... FROM` for embedding writes (the ~55min pass is one UPDATE per
 passage over TCP); an explicit include/exclude decision on patents and theses.
@@ -105,8 +117,10 @@ a bug, and only the ablation surfaced it.
 
 ### Numbers
 
-The only table that finished and was read back is the **first, pre-fix run** —
-kept here because it is the evidence for bug 2, not because it is a result:
+Three runs, all n=171, split=test, origin=citation. **Pre-fix** is kept as the
+evidence for bug 2, not as a result.
+
+**Pre-fix — do not quote:**
 
 | arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
 |---|---:|---:|---:|---:|---:|
@@ -115,29 +129,49 @@ kept here because it is the evidence for bug 2, not because it is a result:
 | `hybrid` | 0.1224 | 0.0470 | 0.0943 | 45.5 | 67.9 |
 | `hybrid_rerank` | 0.1262 | 0.0432 | 0.0849 | 5676.7 | 7776.8 |
 
-_n=171, split=test, origin=citation. **Both the `fts` bug and the duplicate
-inflation are present in these numbers — do not quote them.**_
+**Corrected, `--canonicalize` (current `docs/ablation.md`):**
 
-> **The corrected tables were still running when this session ended.** Two
-> variants were launched (`--no-canonicalize` then `--canonicalize`) to
-> attribute the lexical fix and the dedup fix separately. If
-> `docs/ablation.md` / `docs/ablation_nocanon.md` are missing or predate
-> 2026-08-07 17:00, they did not survive; regenerate with:
->
-> ```bash
-> regsearch eval --split test --origin citation --no-canonicalize --out docs/ablation_nocanon.md
-> regsearch eval --split test --origin citation --canonicalize    --out docs/ablation.md
-> ```
->
-> Budget ~15 min each on a 1-CPU node — the rerank arm dominates. On a GPU
-> node it is minutes. `docs/` is deliberately **not committed yet**: the only
-> file in it is the stale pre-fix table above, and a broken table sitting in
-> the repo looking like a result is worse than no table.
+| arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
+|---|---:|---:|---:|---:|---:|
+| `fts` | 0.0462 | 0.0146 | 0.0430 | 1434.4 | 3265.0 |
+| `dense` | **0.1236** | **0.0536** | **0.1100** | **38.3** | **50.3** |
+| `hybrid` | 0.0992 | 0.0339 | 0.0792 | 1409.1 | 3369.9 |
+| `hybrid_rerank` | 0.1212 | 0.0513 | 0.0971 | 9630.2 | 15192.2 |
 
-What is already known about the corrected numbers without re-running: the
-`fts` p50 will rise sharply (from 5.7 ms to roughly 700 ms) because ORing the
-terms takes it from ranking 1 matched passage to ranking ~32k. That is a real
-recall/latency trade and the table should show it, not hide it.
+`docs/ablation_nocanon.md` holds the same run with `--no-canonicalize`, so each
+fix can be attributed separately.
+
+**What the three runs say:**
+
+**The lexical fix worked: `fts` Recall@50 went 0.0013 → 0.0462, ~35×.** It also
+cost two orders of magnitude of latency — p50 5.7 ms → 1434 ms — because the
+arm went from ranking 1 matched passage to ranking ~32k. Worse than the ~700 ms
+I estimated from a single warm query. **This is now the arm's real problem** and
+the obvious next lever on it: cap the candidate set before `ts_rank_cd` sees it
+rather than ranking every OR match.
+
+**Canonicalisation moves the rank-sensitive metrics, not recall.** nDCG@10
++11-18% and MRR +6-21% across arms, while Recall@50 barely shifts (dense
+0.1221 → 0.1236). That is the expected shape: at depth 50 a twin was usually
+counted either way, but near the top it was stealing a slot from a distinct
+paper. It confirms the fix targets what it claimed to.
+
+**The headline result is awkward and worth keeping that way: plain `dense`
+wins every metric, and it is also the fastest arm by ~40×.** Both of the
+"sophisticated" arms are worse than the simple one:
+
+- `hybrid` (RRF fusion) *loses* to `dense` — 0.0992 vs 0.1236 Recall@50. Fusing
+  a much weaker lexical arm into a strong dense one drags it down; RRF weights
+  the two arms equally by construction, so a bad arm gets an equal vote.
+- `hybrid_rerank` does not rescue it (0.1212), because it reranks the already
+  degraded fused candidate set, and with an off-the-shelf checkpoint.
+
+So the current honest summary is: **fusion and reranking as configured make
+retrieval worse, and the ablation is what proves it.** That is a better
+portfolio result than a tidy monotone improvement — it is the table doing its
+job. Two concrete follow-ups fall straight out of it: weight the RRF arms
+rather than fusing equally, and fine-tune the reranker so its row is a trained
+model rather than a public baseline.
 
 ### The duplicate-record problem
 
