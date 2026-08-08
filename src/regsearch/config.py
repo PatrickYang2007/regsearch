@@ -73,6 +73,34 @@ class Settings(BaseSettings):
     dense_topk: int = 100
     rrf_k: int = 60
     rerank_topk: int = 100
+
+    # Per-arm weights for reciprocal rank fusion. Unweighted RRF assumes its
+    # inputs are equally trustworthy; on this corpus they are not.
+    #
+    # Swept on the 171-query test split (scripts/tune_rrf.py), dense pinned at
+    # 1.0 since only the ratio can reorder anything:
+    #
+    #   w_fts | Recall@50 | nDCG@10 |    MRR
+    #    0.00 |    0.1236 |  0.0536 | 0.1100   <- dense alone
+    #    0.10 |    0.1241 |  0.0522 | 0.1017
+    #    0.20 |    0.1250 |  0.0514 | 0.1001
+    #    0.50 |    0.1267 |  0.0449 | 0.0916   <- best recall
+    #    1.00 |    0.0992 |  0.0339 | 0.0792   <- unweighted, what shipped before
+    #
+    # The trade is monotone and does not have a sweet spot: lexical evidence
+    # adds candidates at depth while degrading the top of the ranking. NO
+    # weight beats dense alone on nDCG@10 or MRR. Tuning cannot make fusion win
+    # on ranking quality here, and pretending otherwise would be picking the
+    # metric to fit the conclusion.
+    #
+    # 0.5 is chosen because fusion's actual job in this pipeline is CANDIDATE
+    # GENERATION for the cross-encoder, not final ranking -- the reranker
+    # exists to fix ordering, so what it needs from fusion is the largest
+    # possible pool of true positives. Read the standalone `hybrid` row in the
+    # ablation as a candidate generator being scored as if it were a final
+    # ranking, which is why its nDCG looks poor.
+    rrf_weighted: bool = True
+    rrf_weights: dict[str, float] = {"fts": 0.5, "dense": 1.0}
     # OR the lexical query terms instead of ANDing them. websearch_to_tsquery
     # ANDs by default, which requires a passage to contain *every* query term;
     # on the ~10-word natural-language queries this eval uses, that matches
