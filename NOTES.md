@@ -5,6 +5,399 @@ they were. Newest session first.
 
 ---
 
+## Session 3 — 2026-08-07 (late)
+
+Theme of this session: **the two cheap wins from session 2 were attempted, and
+one of them refuted itself.** Weighted RRF was written, swept, and shipped at a
+setting that is *worse* on ranking quality than doing nothing — for a reason
+that only makes sense once you say out loud what fusion is actually for here.
+Alongside that: a FastAPI service over the existing arms, and the cross-encoder
+fine-tune (written, never run).
+
+Work was split across the main session and two agents. Their running notes
+(`docs/agent-notes/api.md`, `docs/agent-notes/reranker.md`) are folded into this
+entry and deleted — they were scratch coordination files, not permanent docs.
+
+### State at end of session
+
+| Thing | Status |
+|---|---|
+| Weighted RRF (`rrf_weights`) | **shipped** at `{"fts": 0.5, "dense": 1.0}` — see the sweep below |
+| FastAPI service (`src/regsearch/api/`) | **built**, verified against the live DB, **not** wired to the CLI |
+| Cross-encoder fine-tune (`retrieve/train_rerank.py`) | **written, never actually trained** — smoke run only |
+| `slurm/finetune_rerank.sbatch` | written, **never submitted** |
+| `data/models/reranker/` | still does not exist → `hybrid_rerank` is still the public checkpoint |
+| `docs/ablation.md` | **`hybrid` / `hybrid_rerank` rows now stale** — measured under unweighted fusion |
+| Unit tests | **95 passing** (47 chunk+metrics, 27 API, 21 train_rerank) |
+| `slurm/embed.sbatch` stale comment | **fixed** |
+| Manual judged eval set | still not started — every number is still weak supervision |
+
+### 1. Weighted RRF — the sweep refuted its own premise
+
+Session 2's read was: `hybrid` loses to `dense` because RRF gives both inputs an
+equal vote and the lexical arm is much weaker, so down-weighting `fts` should at
+minimum stop fusion from being harmful. `rrf_fuse()` now takes per-arm weights,
+and `scripts/tune_rrf.py` sweeps them.
+
+**The sweep is cheap by construction.** Retrieval does not depend on the fusion
+weight, so the script runs each arm once, caches the ranked lists, and re-fuses
+them in memory across all nine settings. That is one retrieval pass plus
+arithmetic instead of nine full passes — which matters because the lexical arm
+costs ~1.4 s per query and there are 171 of them.
+
+Swept on the 171-query test split, `dense` pinned at 1.0 (only the ratio can
+reorder anything). Full table lives in the `rrf_weights` comment in
+`src/regsearch/config.py`:
+
+| w_fts | Recall@50 | nDCG@10 | MRR | |
+|---:|---:|---:|---:|---|
+| 0.00 | 0.1236 | **0.0536** | **0.1100** | dense alone |
+| 0.10 | 0.1241 | 0.0522 | 0.1017 | |
+| 0.20 | 0.1250 | 0.0514 | 0.1001 | |
+| 0.50 | **0.1267** | 0.0449 | 0.0916 | best recall — **shipped** |
+| 1.00 | 0.0992 | 0.0339 | 0.0792 | unweighted, what shipped before |
+
+**There is no sweet spot. The trade is monotone.** Every increment of lexical
+weight buys depth-recall and pays for it at the top of the ranking, all the way
+across the sweep. **No weight beats dense alone on nDCG@10 or MRR.** The premise
+the work was written to serve — "tuning will make fusion stop being harmful" —
+is false on this corpus, and the honest thing is to record that rather than pick
+the metric that flatters it. `tune_rrf.py` prints an explicit warning when no
+weight beats the dense-only baseline, so this cannot be quietly tuned into a win
+later.
+
+**0.5 ships anyway, and the reason is what the arm is for.** Fusion's job in
+this pipeline is **candidate generation for the cross-encoder**, not final
+ranking. The reranker exists precisely to fix ordering, so what it needs from
+fusion is the largest possible pool of true positives — and 0.5 maximises
+Recall@50 (0.1267, the best in the sweep, above dense's 0.1236). The
+consequence, worth saying out loud: **the standalone `hybrid` row in the
+ablation is a candidate generator being scored as if it were a final ranking.**
+Its poor nDCG is that mismatch, not only arm weakness.
+
+If the reranker fine-tune fails to beat the off-the-shelf baseline, this
+justification collapses and `w_fts` should go to 0. That is the test.
+
+**Consequence for the published table: `hybrid` and `hybrid_rerank` in
+`docs/ablation.md`, `docs/ablation_nocanon.md` and `README.md` were measured
+under unweighted fusion and no longer describe the committed default.** They are
+marked stale in place rather than deleted or guessed at; `fts` and `dense` are
+unaffected because neither reads `rrf_weights`. Re-measure after the GPU
+fine-tune, in one pass, so the new fusion and the trained reranker land in the
+same table.
+
+### 2. FastAPI service
+
+`src/regsearch/api/`: `GET /health`, `GET /search?q=&arm=&k=`, `GET /doc/{id}`.
+
+**Every ranked response goes through `retrieve.search.search()`.** Nothing in
+the package re-implements or re-tunes retrieval, and that is the whole design
+constraint: the ablation table only describes *this service* if the service runs
+the code the eval measured. A convenience reimplementation would silently
+invalidate the published numbers.
+
+**Handlers are plain `def`, not `async def`.** Starlette runs a sync handler in
+its worker threadpool and an `async` one directly on the event loop. The
+retrieval path blocks end to end (psycopg, plus torch for `dense` and
+`hybrid_rerank`), so an `async` handler would pin the event loop for the whole
+query — a single 6.5-second `hybrid_rerank` call would stall every other request
+in the process, and nothing in the code would look wrong afterwards. A test pins
+this (`test_handlers_are_sync_so_starlette_offloads_them`) rather than a comment,
+because a comment does not survive a refactor.
+
+**Binds loopback by default.** On a shared cluster node an unauthenticated
+search service on `0.0.0.0` is reachable by every other user on the box. Port-
+forward instead.
+
+Verified against the live database, not just mocks — server run on port 8077,
+curled, killed:
+
+| check | result |
+|---|---|
+| `/health` | 200, counts match `regsearch stats` exactly |
+| `/search?arm=dense` | 200, warm `latency_ms` 12–50 ms |
+| `/search?arm=fts` | 200, 122–784 ms |
+| `/search?arm=hybrid` | 200, 156 ms, hits carry per-arm `components` |
+| `/search?arm=hybrid_rerank` | 200, 6558 ms (one call) |
+| `/search?arm=bm25` | 422, body names the four legal arms |
+| `/doc/999999` / `/doc/0` / `/doc/abc` | 404 / 422 / 422 |
+| `/search?q=%20&arm=fts` | 200 with `hits: []` — whitespace does not 500 |
+
+The warm `dense` number is consistent with the ablation's 38 ms p50 / 50 ms p95,
+which is the actual evidence that the service and the eval run the same arm.
+
+**Honest caveats — these are real and none of them are fixed:**
+
+1. **Cold start costs ~12 s and it lands inside the reported `latency_ms`.** The
+   first `dense` request after a restart reported `latency_ms: 12358.23`; the
+   second, same query, `50.43`. That is `sentence-transformers` loading
+   `bge-small-en-v1.5` on CPU *inside the request*, because `embed.get_model()`
+   is lazy and `@lru_cache`d. **Any latency a caller measures on a fresh process
+   is meaningless.** Same applies to the cross-encoder. Left as is deliberately:
+   eager loading contradicts the lazy startup that lets the process come up (and
+   `/health` report the outage) while Postgres is down, which on this cluster is
+   the normal state between allocations. The fix, when it happens, is a
+   `lifespan` warm-up behind a settings boolean — matching the project's
+   every-fix-gets-a-toggle convention.
+2. **The `dense` arm returns a bare 500 on model-load failure.** Only
+   `psycopg.Error` is caught in `app.py`. If `sentence-transformers` cannot load
+   (HF cache missing, offline, OOM), `/search?arm=dense` returns an undetailed
+   500 — while `hybrid_rerank` **degrades gracefully**, because `rerank()`
+   catches and returns the fused order unchanged. So the two arms behave
+   inconsistently under the same failure. A blanket `except Exception` was
+   deliberately *not* added: it would convert genuine bugs into tidy 503s and
+   hide them. The right fix is a narrow catch in `dense_search`/`embed_query`.
+3. **No load testing was done.** One CPU on this node, and it was deliberately
+   not run. Everything about concurrency here is reasoning from code, not
+   measurement: the Starlette threadpool defaults to 40 workers against a
+   connection pool of `max_size=8`, so overflow surfaces as `PoolTimeout` → 503
+   (an honest failure, at least — verified that `PoolTimeout` really does
+   subclass `psycopg.Error`, so it cannot leak out as a 500). On one CPU the CPU
+   binds long before the pool does. Revisit before calling anything production.
+4. **The `fts` arm looked faster here (122–784 ms) than the ablation's 1434 ms
+   p50.** Two short keyword queries against a warm buffer cache is not a
+   measurement. Recorded as an observation. **Do not quote it.**
+5. **Not wired to the CLI.** `api.app.run(host, port, reload)` exists but no
+   `regsearch serve` command calls it. When wiring it, **import
+   `regsearch.api.app` lazily inside the command body** — `regsearch.api` exists
+   precisely so `fastapi` stays in the `serve` extra, and a module-level import
+   in `cli.py` would make every `regsearch ingest` on a login node require it.
+6. **`/docs` needs the browser to have internet** (Swagger UI comes from a CDN).
+   `/openapi.json` is the self-contained artefact. **`GET /` is a 404** — no root
+   route.
+7. **The RAG answer endpoint was not built.** `anthropic` is declared in the
+   `serve` extra, but the endpoint needs a key-handling story and a decision
+   about whether generated answers belong anywhere near an evaluation this
+   project is trying to keep honest. Still open.
+
+Three corrections made to claims that were stated confidently and were not true:
+the `canonical_doc_id` schema description said NULL meant "no duplicate known"
+(on this corpus `nulls 0 | self_ref 18,409 | merged 1,382`, so NULL essentially
+never appears and a client branching on it would be branching on nothing); the
+`components` description documented two of its four keys (`fts`/`dense` are
+arms, `rrf`/`rerank` are stages, and a half-documented map is worse than an
+undocumented one because a client will treat it as closed); and both 503 paths
+re-raised without `from exc`, burying the psycopg error under the HTTP one in
+exactly the log you read when the database has fallen over.
+
+**One test was hardened because it could rot into passing vacuously.** The
+OpenAPI honesty test asserted `spec.count("bm25") == spec.count("not bm25")` —
+which is `0 == 0` if the denial is ever deleted, i.e. it would go green exactly
+when the guard it exists to provide is gone. Same failure mode as session 2's
+chunker `fold` test. It now asserts `"not bm25" in spec` first, and that was
+negative-controlled by tampering the description to `-- BM25-like` and
+confirming both assertions fail.
+
+### 3. Cross-encoder fine-tune — written, **never run**
+
+`src/regsearch/retrieve/train_rerank.py` + `slurm/finetune_rerank.sbatch`.
+
+**Up front: no real training has happened.** This node has one CPU and no GPU.
+Everything was validated on a deliberately tiny smoke run (4 queries → 16 pairs,
+2 optimiser steps, CPU) whose only purpose was to prove the code path executes
+and writes a loadable checkpoint. **There is no loss curve, no accuracy number,
+and no ablation row.** The smoke run wrote to a scratch directory and
+**deliberately not** to `data/models/reranker/` — leaving a 2-step model there
+would silently flip the `hybrid_rerank` arm to an untrained checkpoint and
+quietly corrupt the next ablation. `data/models/` still does not exist, so the
+arm is still the public baseline. The real run is
+`sbatch slurm/finetune_rerank.sbatch` on an A100.
+
+**Negatives are mined from the system's own output**, not sampled randomly:
+`search(q, arm="hybrid", k=candidate_k)` per training query, keeping candidates
+whose document is not in that query's qrels, in rank order so the cap retains
+the *hardest* ones. Random negatives make the task trivial — a random passage
+out of 99,567 differs from a positive in organism, assay and decade, and a
+cross-encoder separates it on surface vocabulary while learning nothing. At
+inference the model only ever sees the fused top-k, where every candidate
+already survived both arms; training on easy negatives and serving hard ones is
+a train/serve mismatch whose symptom is a beautiful training loss and a flat
+nDCG.
+
+**The trap I did not see coming: the query's own paper.** The queries *are paper
+titles*. Search a corpus for a paper's own title and it returns that paper's own
+abstract at rank ~1 — and its doc_id is **never in its own qrels**, because a
+paper does not cite itself. So the naive rule labels a near-exact lexical match
+to the query as a **hard negative**, teaching the model that near-exact title
+matches are irrelevant. That is close to the worst possible lesson for a
+reranker.
+
+Fixing it needs the citing document, which `eval_queries` has no foreign key to
+— recovered by joining `citation_contexts.context_text = eval_queries.query_text`.
+**Coverage is 619/619 train queries, each resolving to exactly one citing
+document**, so no fallback path was needed. Measured on the smoke run at
+`candidate_k=10`: **11 of 40 candidates were blocked as self-matches**, ~2.75 per
+query (the counter counts blocked *passages*, and one paper contributes several
+abstract chunks — so roughly one self-paper per query, appearing 2-3 times). I
+expected the effect to exist. I did not expect it to be a quarter of the pool.
+
+Two more exclusions, each of which otherwise produces a **contradictory** label
+rather than a hard one:
+
+- **Canonical twins.** A preprint of a cited paper has a different doc_id and
+  near-identical text, so under the naive rule it becomes a hard negative — a
+  passage almost identical to a positive, labelled the opposite way. At 1,335
+  clusters / 7% of the corpus that is enough to teach noise directly. Everything
+  is therefore compared at *cluster* level via `db.load_canonical_map()`, which
+  omits self-mappings so a missing key means identity — matching the eval
+  harness's convention rather than inventing a second one. The same mapping does
+  double duty on the positive side: a retrieved twin of a cited paper counts as
+  a positive.
+- **Repeat clusters**, so one document cannot spend the whole negative budget on
+  near-identical chunks of itself.
+
+**The honest weakness: a mined negative is unjudged, not judged irrelevant.**
+The qrels only contain cited papers that happen to be *in this corpus*, and a
+citing paper's reference list is mostly outside it — so a genuinely relevant
+paper that was never cited gets a 0. Hard-negative mining maximises this risk on
+purpose, because the candidates most likely to be false negatives are exactly
+the highest-ranked ones. `skip_top_n_negatives` (the standard RocketQA-style
+denoising trick) is implemented but **defaults to 0**: turning on an unmeasured
+mitigation without a GPU to measure it is just a second untested choice.
+
+**Positives:** if the positive document is in the mined pool, its retrieved
+passage is used (the realistic case — right paper, ranked too low, exactly what
+the reranker must fix); otherwise its lead passage. Recall is ~12%, so the
+fallback is the common case. The risk in that scheme is a *shape* shortcut —
+positives always lead chunks, negatives always mid-document ones, model learns
+"abstract-shaped text = relevant". Checked: every passage in this corpus is an
+abstract chunk, so both pools come from the same text distribution. Re-check if
+full text is ever ingested. `max_positives_per_query` (8) caps a 119-qrel
+outlier (mean 10.2, min 3, max 119) that would otherwise contribute more pairs
+than ten typical queries combined.
+
+**Training uses `CrossEncoder.old_fit()`, the deprecated pre-4.0 pure-PyTorch
+loop, and that is deliberate.** The current `fit()` routes through
+`CrossEncoderTrainer`, which requires `datasets` and `accelerate` — **neither is
+installed, and neither is in any extra in `pyproject.toml`.** `old_fit()` needs
+only torch + transformers, both already provided by the `--extra embed` the GPU
+job installs. The alternative was adding two dependencies (plus pyarrow) to a
+shared virtualenv while another agent was actively running against it, *and*
+editing `pyproject.toml` so the GPU job reproduces the install. Verified
+`old_fit` runs to completion on this exact torch 2.13 / transformers 5.14 pair —
+it is deprecated, not broken. Cost of the choice: no built-in eval loop or
+checkpointing; `use_amp=True` is passed when CUDA is present, which is the only
+one of those that matters here. Swapping to the trainer later touches ~15 lines
+in `_fit`.
+
+Loss is `BCEWithLogitsLoss` on a single-logit head — the standard pointwise
+setup, and what `rerank.py`'s `model.predict()` expects to read back. Pointwise
+rather than a margin loss because the labels are binary and noisy; a margin loss
+would take weak supervision more literally than it deserves.
+
+**The training set is only valid for the fusion config it was mined under.** The
+mining code calls `search()` and consumes what it returns — it hardcodes no
+weight, arm list or `rrf_k` — so it picks up whatever fusion is current. That is
+the point (the model trains against its real candidate distribution) but it
+means a checkpoint goes stale if fusion changes. `training_meta.json` records
+`rrf_weighted`, `rrf_weights` and `fts_or_semantics` at mining time so a
+checkpoint can be traced to the retriever that generated its negatives. If the
+weights change after training, re-mine and retrain — do not reuse. (This was
+live during the session: `rrf_weights` was `{"fts": 0.3}` when the mining code
+was read and `{"fts": 0.5}` by the time the smoke run recorded its fingerprint,
+because the sweep was landing underneath. Nothing broke, which is the evidence
+that the decoupling holds.)
+
+**Cost warning:** mining is one full hybrid search per query, and `hybrid` p50
+is ~1.4 s, so 619 queries is ~15-25 min of Postgres-bound wall clock **before
+the first gradient step**. The sbatch budgets 2 h almost entirely for that. There
+is no pairs cache; a `--pairs-cache` JSONL would fix it if hyperparameters ever
+get swept.
+
+The sbatch **asserts after training that `rerank.model_path()` actually resolves
+to the checkpoint directory** — that catches a save which produced no
+`config.json`, which is otherwise invisible until the eval quietly reports
+baseline numbers a second time and nobody notices.
+
+Hyperparameters (1 epoch, lr 2e-5, batch 32) are the conventional MS MARCO
+cross-encoder defaults, **not tuned here** and not tunable without a GPU. They
+are env-overridable at submit time:
+`EPOCHS=2 MAX_NEG=16 SKIP_TOP_N=3 sbatch slurm/finetune_rerank.sbatch`.
+
+`tests/test_train_rerank.py` is 21 tests over pure functions, no GPU, no model
+download, no database. The three that carry weight: a candidate whose canonical
+twin is a qrel is not emitted as a negative; the citing document is not emitted
+as a negative; negatives are cluster-deduped and rank-ordered so the cap keeps
+the hardest ones. The DB and `search()` boundaries are deliberately *not* mocked
+— mining is a thin loop with the judgement extracted out of it, and a mock there
+would assert the shape of my own SQL and pass whether or not the logic was
+right.
+
+### 4. `slurm/embed.sbatch` — stale comment fixed
+
+The comment claimed GPU jobs reach Postgres "over the shared-filesystem Unix
+socket. That works because /vast is visible from every node." That is **exactly
+the misreading that cost two failed GPU jobs in session 1**: a Unix socket is
+local IPC, and a compute node seeing the socket inode on shared storage still
+gets ECONNREFUSED. The code was fixed to TCP at the time; the comment was never
+updated and had been documenting the broken design as if it were the design ever
+since.
+
+It now describes the TCP path (`config.resolved_host` ← `data/run/pg_host`,
+scram-sha-256, `pg_hba` limited to RFC1918). Worth a line in the log because the
+fine-tune sbatch is modelled on this file — leaving it would have propagated the
+wrong mental model into a second GPU job.
+
+### Found but not fixed
+
+- **`lru_cache` on `embed.get_model` / `rerank.get_cross_encoder` does not
+  lock.** Two concurrent first requests in the threadpool can each construct the
+  model — two copies loaded, one discarded. Wasteful, not incorrect, invisible
+  with one client, and would disappear under a lifespan warm-up.
+- **`k` is never silently truncated — by coincidence.** `search()` uses
+  `candidate_k = max(bm25_topk, dense_topk) = 100` and the endpoint caps `k` at
+  100, so they line up exactly. Nothing enforces that. If `dense_topk` ever drops
+  below 100, `?k=100` starts returning fewer than 100 hits with no error.
+- **`eval_queries` has no `citing_doc_id` column.** Recovering the citing paper
+  means an unindexed text equality on `context_text` against an 8,075-row table.
+  Fast enough at this size; the right schema is a real column, populated in
+  `eval/build.py`.
+- **`/health` returning `degraded` against a genuinely dead Postgres was not
+  verified** — only the monkeypatched unit test covers it. Postgres was in use by
+  other work and was not stopped to check.
+
+### Honesty items — still binding, unchanged
+
+1. **The lexical arm is `ts_rank_cd`, not BM25.** Cover-density TF-IDF, no k1/b
+   saturation. Named `fts` everywhere for this reason. The OpenAPI description
+   says "not BM25" explicitly and a test now asserts that string is present.
+2. **`hybrid_rerank` is still the off-the-shelf `ms-marco-MiniLM-L-6-v2`.**
+   `data/models/reranker/` does not exist. Writing the fine-tune did not change
+   this; only running it will.
+3. **Every number in the repo is citation-derived weak supervision.** The same
+   signal will train the reranker. `load_eval_set` still defaults to
+   `origin='manual'`; `export_pool_for_judging` still has never been run.
+
+### Where to pick up — next session
+
+```bash
+scripts/pg_start.sh
+regsearch stats        # 19,791 / 99,567 / 0 unembedded / 8,075 contexts
+```
+
+**1. Run the fine-tune on a GPU.** `sbatch slurm/finetune_rerank.sbatch`, with
+Postgres already up (the job preflights and exits otherwise). This is the only
+remaining step that turns `hybrid_rerank` into a trained row.
+
+**2. Re-run the ablation and replace the stale rows** —
+`regsearch eval --split test --origin citation --out docs/ablation.md`. One pass
+covers both changes: `w_fts=0.5` fusion *and* the trained checkpoint. Until then
+`hybrid` / `hybrid_rerank` in `docs/ablation.md`, `docs/ablation_nocanon.md` and
+`README.md` are marked stale in place. **The decision that hangs on this: if the
+fine-tuned reranker does not beat the baseline, the candidate-generation
+justification for `w_fts=0.5` collapses and the weight should go to 0.**
+
+**3. Wire `regsearch serve`** — lazy import in the command body, see §2.
+
+**4. Cap the lexical candidate set.** Still open from session 2, and now it also
+gates fine-tune iteration speed: `hybrid` at ~1.4 s per query is what makes
+negative mining a 15-25 minute phase.
+
+**5. Manual judged eval set.** Still the thing that would let any number here be
+called a result rather than weak supervision. Needs a human.
+
+---
+
 ## Session 2 — 2026-08-07
 
 Theme of this session: **the eval harness earned its keep.** Running it end to
