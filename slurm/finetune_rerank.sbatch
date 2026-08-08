@@ -62,6 +62,12 @@ export TOKENIZERS_PARALLELISM=false        # silences a fork warning under DataL
 : "${SKIP_TOP_N:=0}"     # drop the head of the pool; false negatives cluster there
 : "${LIMIT:=}"           # empty = all 619 training queries
 
+# `: "${X:=default}"` assigns a SHELL variable, which a child process does not
+# inherit. The training block below is a separate `python` process reading
+# os.environ, so without this export it died on KeyError: 'EPOCHS' -- after
+# passing preflight and allocating a GPU, which is the expensive way to fail.
+export EPOCHS BATCH_SIZE LR MAX_NEG MAX_POS CANDIDATE_K SKIP_TOP_N LIMIT
+
 echo "node   : $(hostname)"
 echo "gpu    : $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || echo none)"
 echo "pg host: $(cat data/run/pg_host 2>/dev/null || echo '<unset>')"
