@@ -533,6 +533,21 @@ def train_reranker(
 
 
 def _retrieval_fingerprint() -> dict[str, Any]:
+    """Every setting that changes which passages the `hybrid` arm returns.
+
+    A setting missing here is worse than no fingerprint at all: it lets a
+    checkpoint look current while its negatives came from a pool that no longer
+    exists. That is not hypothetical -- the first fine-tune recorded only the
+    fusion settings, and lexical term pruning landed the next day. Measured
+    over the same 171 queries, the fts arm's top-50 kept a mean of 0.265 of its
+    passages across that change: roughly 80% turnover in one of the two inputs
+    the negatives were mined from, with nothing in training_meta.json to show
+    for it.
+
+    So: anything that alters candidate generation belongs in this dict, even
+    when it seems like a performance-only knob. Term pruning was filed as a
+    latency fix and silently changed the training distribution.
+    """
     s = get_settings()
     return {
         "arm": "hybrid",
@@ -540,6 +555,10 @@ def _retrieval_fingerprint() -> dict[str, Any]:
         "rrf_weights": dict(s.rrf_weights),
         "rrf_k": s.rrf_k,
         "fts_or_semantics": s.fts_or_semantics,
+        "fts_prune_common_terms": s.fts_prune_common_terms,
+        "fts_df_max_frac": s.fts_df_max_frac,
+        "fts_min_terms": s.fts_min_terms,
+        "fts_join_after_limit": s.fts_join_after_limit,
         "bm25_topk": s.bm25_topk,
         "dense_topk": s.dense_topk,
     }
