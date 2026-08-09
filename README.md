@@ -11,13 +11,16 @@ ablation table.
 > fully embedded, HNSW index built, all four arms run end to end, and a FastAPI
 > service serves them over HTTP. First ablation table is below.
 >
-> Two caveats that apply to every number here. **The labels are citation-derived
-> weak supervision**, not human relevance judgements — a hand-judged set is
-> still outstanding. And **the reranker is an off-the-shelf checkpoint**, not a
-> fine-tuned one; the fine-tuning script exists but that training run has not
-> happened yet. See
-> [START_HERE.md](START_HERE.md) for orientation and the next steps, or
-> [NOTES.md](NOTES.md) for the full dev log.
+> The cross-encoder has been fine-tuned on citation-derived pairs and the
+> ablation re-run against it.
+>
+> **One caveat applies to every number here: the labels are citation-derived
+> weak supervision, not human relevance judgements.** A query is a paper's
+> title and its positives are the papers it cites. The reranker trains on that
+> same signal, so it is scored against the family of labels it learned from. A
+> hand-judged evaluation set is the outstanding work that would remove this
+> asterisk. See [START_HERE.md](START_HERE.md) for orientation and next steps,
+> or [NOTES.md](NOTES.md) for the full dev log.
 
 ## Why this exists
 
@@ -84,42 +87,48 @@ every number in this repo is labelled weak supervision.
 
 ## Results
 
-> ⚠️ **Two rows below are stale.** `hybrid` and `hybrid_rerank` were measured
-> under *unweighted* reciprocal rank fusion. The committed default is now
-> weighted (`w_fts=0.5`), so neither number describes the current code.
-> **Replacement numbers have not been measured yet, and none are guessed at
-> here** — the table is re-run once the reranker fine-tune completes. `fts` and
-> `dense` are unaffected; neither arm reads the fusion weights.
-
 | arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
 |---|---:|---:|---:|---:|---:|
-| `fts` | 0.0462 | 0.0146 | 0.0430 | 1434.4 | 3265.0 |
-| `dense` | **0.1236** | **0.0536** | **0.1100** | **38.3** | **50.3** |
-| `hybrid` ⚠️ stale | 0.0992 | 0.0339 | 0.0792 | 1409.1 | 3369.9 |
-| `hybrid_rerank` ⚠️ stale | 0.1212 | 0.0513 | 0.0971 | 9630.2 | 15192.2 |
+| `fts` | 0.0501 | 0.0172 | 0.0448 | 174.0 | 609.4 |
+| `dense` | 0.1236 | **0.0536** | 0.1100 | **20.5** | **29.7** |
+| `hybrid` | 0.1284 | 0.0500 | 0.1010 | 187.6 | 564.5 |
+| `hybrid_rerank` | **0.1388** | 0.0522 | **0.1287** | 1185.2 | 1907.0 |
 
 _n=171 test queries. **Weak supervision:** labels are citation-derived — a query
 is a paper's title, its positives are the papers it cites — not human relevance
-judgements. `hybrid_rerank` uses an off-the-shelf `ms-marco-MiniLM-L-6-v2`, not
-a fine-tuned model; the fine-tune is written but has never been run. **The two
-fused rows predate weighted fusion and are pending re-measurement.** Reproduce
-with `regsearch eval --split test --origin citation`._
+judgements. The cross-encoder is fine-tuned on that same signal, so its row is
+scored against the family of labels it learned from. Latency measured on 8
+cores; the `fts` figure is the one reflecting a real code change (see below).
+Reproduce with `regsearch eval --split test --origin citation`._
 
-**Plain dense retrieval wins every metric, and is ~40× faster than the arms
-built on top of it.** As measured, both of the more elaborate arms are worse:
+**The full pipeline wins on recall and first-hit rank; plain `dense` still wins
+nDCG@10 and is ~58× faster.** Reranking pulls more correct documents into the
+top 50 and gets the first one higher, but has not overtaken dense on the graded
+top-10 measure.
 
-- `hybrid` (reciprocal rank fusion) *loses* to `dense`. Unweighted RRF gives its
-  inputs an equal vote, so fusing a much weaker lexical arm into a strong dense
-  one drags the result down.
-- `hybrid_rerank` does not recover it, because it reranks the already-degraded
-  fused candidate set — with a public checkpoint rather than a trained one.
+### What the fine-tune bought
 
-That is the ablation doing its job rather than a tidy result.
+The table above changed three things at once — a trained reranker, weighted
+fusion, and lexical term pruning — so it cannot attribute the gain. This is the
+control: same queries, same fusion weights, same lexical config, only the
+checkpoint differs (`docs/ablation_offtheshelf.md`).
 
-**The follow-up it pointed at has since been done, and it refuted itself.** RRF
-now takes per-arm weights, and sweeping them showed there is no sweet spot: the
-trade is monotone, and **no weight beats dense alone on nDCG@10 or MRR**.
-Lexical evidence buys depth-recall and pays for it at the top of the ranking.
+| `hybrid_rerank` | Recall@50 | nDCG@10 | MRR |
+|---|---:|---:|---:|
+| off-the-shelf `ms-marco-MiniLM-L-6-v2` | 0.1254 | 0.0467 | 0.0912 |
+| fine-tuned on citation pairs | **0.1388** | **0.0522** | **0.1287** |
+| | +10.7% | +11.8% | **+41.1%** |
+
+**Known limitation:** those negatives were mined before lexical term pruning
+landed, and pruning turned over ~80% of the lexical arm's top-50. The model is
+therefore trained against a candidate distribution it no longer sees at
+inference. The comparison above is still sound — both rows ran under the
+current configuration — but retraining on the current pool is worth doing.
+
+### The fusion sweep, and why it under-reads the result
+
+Sweeping the RRF weights showed a monotone trade with no sweet spot — **no
+weight beat dense alone on nDCG@10 or MRR**:
 
 | w_fts | Recall@50 | nDCG@10 | MRR |
 |---:|---:|---:|---:|
@@ -128,22 +137,33 @@ Lexical evidence buys depth-recall and pays for it at the top of the ranking.
 | 0.50 (shipped) | **0.1267** | 0.0449 | 0.0916 |
 | 1.00 (unweighted) | 0.0992 | 0.0339 | 0.0792 |
 
+This sweep predates term pruning, so its `w_fts=0.5` row (0.1267) is lower than
+the current `hybrid` row (0.1284) for the same setting — the lexical arm it
+fused was the slower, weaker one. Re-running it is a tracked follow-up.
+
 `w_fts=0.5` ships anyway, because fusion's job in this pipeline is **candidate
 generation for the cross-encoder, not final ranking** — the reranker exists to
 fix ordering, so what it needs from fusion is the largest pool of true positives,
 and 0.5 maximises Recall@50. Read the standalone `hybrid` row as a candidate
-generator being scored as if it were a final ranking. If the fine-tuned reranker
-turns out not to beat the off-the-shelf baseline, that justification collapses
-and the weight should go to 0.
+generator being scored as if it were a final ranking.
 
-The remaining follow-up is fine-tuning the reranker so that row reflects a
-trained model. The training script and its Slurm job exist; the GPU run has not
-happened.
+That justification was written with an explicit falsifier: if the fine-tuned
+reranker failed to beat the off-the-shelf baseline, fusion would not be earning
+its keep and `w_fts` should go to 0. It beat it on all three metrics, so the
+setting stands.
 
-The lexical arm's latency is its own open problem: ORing query terms takes it
-from ranking one matched passage to ranking ~32k, which is what buys the recall
-and what costs the 1.4 s. Capping the candidate set before `ts_rank_cd` is the
-next lever.
+The lexical arm's latency was its own open problem, and is fixed. ORing the
+query terms is what buys the recall — a ten-word title ANDed matched 1 passage
+in 99,567 — but it took the candidate set to a median of ~40,000 passages, and
+`ts_rank_cd` had to score every one. Dropping near-universal terms before the
+OR (`gene` occurs in 47.8% of passages, and discriminates nothing) cuts that to
+a median of ~8,600: **p50 1531 ms → 175 ms, an 8.7× speedup, measured on the
+same node and harness.**
+
+Quality went *up* rather than down — Recall@50 +8.5%, nDCG@10 +17.6%. Those
+terms were also polluting the cover-density score, so removing them sharpens
+ranking as well as shrinking the scan. It was measured as a trade and turned
+out not to be one.
 
 Metrics are computed at the document level (passages collapse to their parent
 document in first-appearance order), so an arm cannot win by returning several
@@ -167,8 +187,10 @@ uv sync --extra serve     # adds fastapi + uvicorn (HTTP API)
 `scripts/pg_psql.sh` opens a shell against the running database.
 
 Postgres runs as your own uid inside the container, with `PGDATA` on shared
-storage. Same-node clients connect over a Unix socket in a `0700` directory;
-Slurm jobs on other nodes cannot — a Unix socket is local IPC — so the server
+storage. Same-node clients connect over a Unix socket in a `0700` directory —
+that mode is what makes the socket's `trust` auth safe, and `pg_start.sh` now
+sets it explicitly rather than inheriting whatever the parent had.
+Slurm jobs on other nodes cannot use the socket — it is local IPC — so the server
 also listens on TCP with `scram-sha-256`, and `pg_start.sh` records its hostname
 in `data/run/pg_host` for clients to find. `pg_hba` is restricted to RFC1918
 ranges, so it is reachable from compute nodes and not from off-cluster.
