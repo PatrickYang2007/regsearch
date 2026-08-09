@@ -138,6 +138,29 @@ difference. It's named `fts` everywhere on purpose.
 
 ---
 
+## 3a. FIRST THING: is the trained reranker in place?
+
+```bash
+ls data/models/reranker/config.json      # should exist
+ls -d data/models/reranker_trained       # should NOT exist
+```
+
+On 2026-08-08 the trained checkpoint was temporarily moved to
+`data/models/reranker_trained` to measure the OFF-THE-SHELF reranker under
+otherwise identical settings — the only way to attribute the gain to
+fine-tuning rather than to the fusion and lexical changes that landed at the
+same time. It is supposed to be moved back immediately afterwards.
+
+**If `data/models/reranker_trained` still exists, that restore did not happen.**
+`hybrid_rerank` is silently running the public checkpoint, and any eval run in
+that state measures the baseline while looking exactly like a normal run.
+
+```bash
+mv data/models/reranker_trained data/models/reranker
+.venv/bin/python -c "from regsearch.retrieve.rerank import model_path; print(model_path())"
+# must print the data/models/reranker path, NOT cross-encoder/ms-marco-...
+```
+
 ## 3b. IN FLIGHT as of 2026-08-07 23:30 — check this first tomorrow
 
 A GPU fine-tune (**Slurm job 8740006**) was left running. It is the first real
