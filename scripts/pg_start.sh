@@ -26,6 +26,14 @@ PGPORT_NUM="${REGSEARCH_PG_PORT:-5432}"
 
 mkdir -p "${PGDATA}" "${RUNDIR}"
 chmod 700 "${PGDATA}"
+# RUNDIR holds the Unix socket, and local socket connections use trust auth --
+# no password. The filesystem IS the access control for that path, so this
+# chmod is load-bearing, not tidiness. It was missing: the directory inherited
+# 2755 from its parent, leaving password-free superuser access to anyone in the
+# group who could reach the node. Only the group-restricted parent above it was
+# actually keeping others out, which is not what the trust setting below
+# assumes.
+chmod 700 "${RUNDIR}"
 
 # Slurm jobs land on other nodes and must reach this database. A Unix socket
 # cannot serve them: it is local IPC, and a socket file on shared storage is
