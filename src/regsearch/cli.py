@@ -213,6 +213,27 @@ def eval_cmd(
         console.print(f"[green]wrote[/green] {out}")
 
 
+@app.command("build-lexeme-stats")
+def build_lexeme_stats(verbose: bool = typer.Option(False, "--verbose", "-v")) -> None:
+    """Materialise per-lexeme document frequency for the lexical arm.
+
+    The `fts` arm drops near-corpus-wide query terms before ORing them, which
+    needs to know how common each lexeme is. Without this table the pruning is
+    inert -- the arm still works, just slower and slightly worse -- so a fresh
+    database degrades rather than breaks.
+
+    Re-run after ingesting more documents: the stored frequencies are relative
+    to the corpus size at build time, so a grown corpus makes them stale.
+    """
+    _setup_logging(verbose)
+    db.apply_schema()
+    res = db.rebuild_lexeme_df()
+    console.print(
+        f"[green]built[/green] document frequencies for {res['lexemes']:,} lexemes "
+        f"over {res['n_passages']:,} passages"
+    )
+
+
 @app.command("export-pool")
 def export_pool(
     out: str = typer.Option("data/judging_pool.csv", help="CSV to write."),

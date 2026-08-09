@@ -108,6 +108,41 @@ class Settings(BaseSettings):
     # which is the right choice only for short keyword queries.
     fts_or_semantics: bool = True
 
+    # --- lexical arm: latency ---------------------------------------------
+    # ORing the terms is what made `fts` work (Recall@50 0.0013 -> 0.0462) and
+    # also what made it slow: a 10-word title OR-matches ~52,000 of the 99,567
+    # passages, and ts_rank_cd has to decode positions for every one of them.
+    # These two toggles attack that from opposite ends. Both default ON; both
+    # can be flipped off to reproduce the pre-fix numbers exactly.
+
+    # Drop query terms that occur in more than `fts_df_max_frac` of passages
+    # before ORing. A lexeme in half the corpus contributes an enormous
+    # candidate set and almost no discrimination: 'gene' is in 47.8% of passages
+    # here, 'express' 40.1%, 'chromatin' 24.9%. Reads the materialised
+    # `lexeme_df` table; with that table empty the toggle is inert, so an
+    # un-rebuilt database degrades to the previous behaviour rather than
+    # breaking.
+    #
+    # This is NOT idf weighting -- ts_rank_cd has no idf term, it ranks by cover
+    # density. Pruning changes which passages are candidates AND their scores
+    # (a dropped term stops contributing to any cover), so it is a real quality
+    # trade and is measured as one, not asserted to be free.
+    # Swept in docs/agent-notes/fts-latency.md.
+    fts_prune_common_terms: bool = True
+    fts_df_max_frac: float = 0.05
+    # Backstop: never prune a query below this many positive terms. A query made
+    # entirely of common words ("gene expression analysis") would otherwise
+    # prune to nothing and return zero hits -- strictly worse than being slow.
+    # When it trips, the rarest of the would-be-dropped terms are restored.
+    fts_min_terms: int = 3
+
+    # Join `documents` (for the title) AFTER the LIMIT rather than before it.
+    # The old shape ran one index lookup into documents for every OR match --
+    # ~52,000 lookups, 158k buffer hits -- to decorate 100 surviving rows. Pure
+    # waste, and result-identical because passages.doc_id is NOT NULL with a
+    # foreign key, so the inner join can never drop a row.
+    fts_join_after_limit: bool = True
+
     @property
     def resolved_host(self) -> str:
         """Where Postgres is actually listening.

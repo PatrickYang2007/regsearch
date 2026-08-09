@@ -102,6 +102,60 @@ def analyze() -> None:
         conn.commit()
 
 
+# ------------------------------------------------------------ lexeme statistics
+def rebuild_lexeme_df() -> dict[str, int]:
+    """Materialise per-lexeme document frequency from ts_stat. Idempotent.
+
+    ts_stat walks every tsvector in the table, so this is a full scan (~1 s on
+    99,567 passages). Run it after ingest, next to analyze() -- the lexical
+    query builder reads the result on every query and must not pay for the scan.
+
+    Full replace inside one transaction rather than an upsert: a lexeme that has
+    disappeared from the corpus must lose its row, and a half-rebuilt table
+    would prune on a mixture of two corpora.
+    """
+    with connection() as conn:
+        n_passages = conn.execute("SELECT count(*) AS n FROM passages").fetchone()["n"]
+        if not n_passages:
+            log.warning("no passages; lexeme_df left empty")
+            conn.execute("TRUNCATE lexeme_df")
+            conn.commit()
+            return {"lexemes": 0, "n_passages": 0}
+
+        conn.execute("TRUNCATE lexeme_df")
+        conn.execute(
+            """
+            INSERT INTO lexeme_df (lexeme, ndoc, df_frac)
+            SELECT word, ndoc, ndoc::real / %(n)s
+            FROM ts_stat('SELECT tsv FROM passages')
+            """,
+            {"n": n_passages},
+        )
+        row = conn.execute("SELECT count(*) AS n FROM lexeme_df").fetchone()
+        conn.commit()
+
+    log.info(
+        "lexeme_df: %s distinct lexemes over %s passages", row["n"], n_passages
+    )
+    return {"lexemes": row["n"], "n_passages": n_passages}
+
+
+def load_common_lexemes(min_frac: float) -> dict[str, int]:
+    """{lexeme: ndoc} for lexemes occurring in more than `min_frac` of passages.
+
+    Only the common tail is returned, and that is the point: the query builder's
+    test is membership, so anything absent is by definition rare enough to keep.
+    On this corpus the result is tiny -- 134 lexemes at 5%, 47 at 10% -- which is
+    what makes it cheap to hold in process memory instead of joining per query.
+    """
+    with connection() as conn:
+        rows = conn.execute(
+            "SELECT lexeme, ndoc FROM lexeme_df WHERE df_frac > %s",
+            (float(min_frac),),
+        ).fetchall()
+    return {r["lexeme"]: r["ndoc"] for r in rows}
+
+
 # ------------------------------------------------------- duplicate clustering
 # Title after stripping every non-alphanumeric. Punctuation and case are the
 # only things that reliably differ between a preprint and its published record

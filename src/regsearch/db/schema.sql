@@ -96,6 +96,38 @@ CREATE UNIQUE INDEX IF NOT EXISTS citation_contexts_uniq_idx
 
 CREATE INDEX IF NOT EXISTS citation_contexts_cited_idx ON citation_contexts (cited_doc_id);
 
+-- ---------------------------------------------------------- lexeme statistics
+-- Document frequency per lexeme, materialised once from ts_stat.
+--
+-- Why it exists: the lexical arm ORs its query terms, because ANDing the ~10
+-- content words of a paper title matched 1 passage out of 99,567. ORing fixed
+-- recall and cost ~250x latency, because ts_rank_cd then has to score every
+-- match -- ~52k passages for a typical title query. Most of that candidate set
+-- is contributed by a few terms that are nearly corpus-wide: on this corpus
+-- 'gene' occurs in 47.8% of passages, 'express' 40.1%, 'chromatin' 24.9%. Those
+-- terms select half the corpus and distinguish almost nothing, so the query
+-- builder drops them from the OR.
+--
+-- ts_stat is a full scan of every tsvector, so it is materialised rather than
+-- run per query. It is a STATISTIC, not a constraint: a stale table costs
+-- ranking quality, never correctness, so it is rebuilt explicitly (alongside
+-- ANALYZE) rather than maintained by a trigger on every insert.
+--
+-- All lexemes are stored, not just the common ones, so the pruning threshold
+-- can be re-tuned without a rebuild.
+CREATE TABLE IF NOT EXISTS lexeme_df (
+    lexeme   TEXT PRIMARY KEY,
+    ndoc     INT NOT NULL,      -- passages containing the lexeme at least once
+    -- ndoc / total passages AT BUILD TIME. Stored rather than derived so the
+    -- threshold means the same thing after the corpus grows and the table has
+    -- not been rebuilt -- a silently shifting denominator would change which
+    -- terms get pruned without anything being re-measured.
+    df_frac  REAL NOT NULL,
+    built_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS lexeme_df_frac_idx ON lexeme_df (df_frac DESC);
+
 -- ------------------------------------------------------------- eval harness
 CREATE TABLE IF NOT EXISTS eval_queries (
     query_id   BIGSERIAL PRIMARY KEY,

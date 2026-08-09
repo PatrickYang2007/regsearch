@@ -7,8 +7,11 @@ treat them interchangeably and the ablation table is apples-to-apples.
 from __future__ import annotations
 
 import logging
+import re
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any, Literal
 
 from regsearch.config import get_settings
@@ -40,35 +43,183 @@ class SearchResponse:
 
 
 # ------------------------------------------------------------------ lexical
-# websearch_to_tsquery ANDs its terms. That is correct for short keyword
-# queries and catastrophic for long ones: a 10-word title requires a passage
-# containing all 10 stems, which on this corpus matched 1 passage out of 99,567
-# and pinned the arm's Recall@50 at 0.0013. Retrieval wants "rank by how many
-# terms match", not "require every term".
+# The tsquery the lexical arm actually runs is built in Python, from the parse
+# Postgres produces. Stemming has to happen server-side (it is the dictionary's
+# job), but everything after it -- OR rewriting and common-term pruning -- is
+# string manipulation on the parse, and doing it here rather than in SQL buys
+# two things: it is unit-testable without a database, and the finished tsquery
+# reaches the planner as a value it can estimate selectivity for, instead of
+# being hidden behind a CTE it has to guess at.
 #
-# There is no or_to_tsquery in Postgres, so the parse is rewritten: split the
-# tsquery on its top-level AND, OR the positive operands back together, and
-# re-AND the negated ones. Negation must stay conjunctive -- folding !x into
-# the OR would make the query match every passage that merely lacks x.
-# Phrase operands ('a' <-> 'b', from quoted input) survive intact because the
-# split is on ' & ' only.
-_FTS_OR_TSQUERY = """
-    WITH parsed AS (
-        SELECT websearch_to_tsquery('english', %(q)s) AS tq
-    ),
-    parts AS (
-        SELECT unnest(string_to_array(tq::text, ' & ')) AS part FROM parsed
-    ),
-    agg AS (
-        SELECT string_agg(part, ' | ') FILTER (WHERE part NOT LIKE '!%%') AS pos,
-               string_agg(part, ' & ') FILTER (WHERE part LIKE '!%%')     AS neg
-        FROM parts
+# Cost: one extra round trip per query (sub-millisecond on a local socket,
+# against an arm whose problem is measured in seconds).
+_PARSE_SQL = "SELECT websearch_to_tsquery('english', %(q)s)::text AS tq"
+
+# A plain single-lexeme operand, e.g. 'chromatin'. Anything else -- a phrase
+# ('enhanc' <-> 'promot'), a parenthesised group, a weighted or prefix operand
+# -- deliberately does not match; see _bare_lexeme.
+_BARE_LEXEME_RE = re.compile(r"^'((?:[^']|'')*)'$")
+
+
+def _bare_lexeme(part: str) -> str | None:
+    """The single lexeme a tsquery operand names, or None if it names no single one.
+
+    Only a plain quoted operand has a document frequency that can be looked up
+    in `lexeme_df`. Phrase operands are left alone on purpose: a phrase is
+    already far more selective than either of its words, so pruning it on one
+    word's df would throw away the most discriminating thing in the query.
+    """
+    m = _BARE_LEXEME_RE.match(part.strip())
+    if m is None:
+        return None
+    return m.group(1).replace("''", "'")
+
+
+def split_tsquery(tq_text: str) -> tuple[list[str], list[str]]:
+    """Split a top-level-AND tsquery into its (positive, negated) operands.
+
+    websearch_to_tsquery only ever emits a conjunction at the top level, so
+    splitting the rendered text on ' & ' is a complete parse of that level.
+    Phrase operands survive intact because ' <-> ' is a different separator.
+
+    An empty tsquery (whitespace input, or input that is all stop words) yields
+    two empty lists, which callers must treat as "matches nothing" -- Postgres
+    cannot even cast '()' to tsquery.
+    """
+    if not tq_text.strip():
+        return [], []
+    pos: list[str] = []
+    neg: list[str] = []
+    for part in tq_text.split(" & "):
+        (neg if part.startswith("!") else pos).append(part)
+    return pos, neg
+
+
+def prune_common_terms(
+    positives: list[str],
+    common: Mapping[str, int],
+    min_terms: int,
+) -> tuple[list[str], list[str]]:
+    """Split positive operands into (kept, dropped) on corpus document frequency.
+
+    `common` is {lexeme: ndoc} for lexemes ALREADY known to exceed the
+    threshold, so membership is the entire test and an absent lexeme is kept.
+
+    The backstop matters more than the rule. A query whose every term is
+    corpus-common ("gene expression analysis") would prune to nothing and return
+    zero hits, which is strictly worse than being slow. When fewer than
+    `min_terms` operands survive, the RAREST of the dropped ones are restored
+    until they do -- so such a query still runs on the most selective evidence
+    it has, even when that evidence is weak.
+
+    Order is preserved and ties break on original position, so the same query
+    always produces the same tsquery and two measurements are comparable.
+    """
+    keep_idx = [i for i, p in enumerate(positives) if _bare_lexeme(p) not in common]
+    drop_idx = [i for i, p in enumerate(positives) if _bare_lexeme(p) in common]
+
+    if len(keep_idx) < min_terms and drop_idx:
+        # Stable sort over an already-ascending index list, so equal df keeps
+        # the earlier term.
+        drop_idx.sort(key=lambda i: common.get(_bare_lexeme(positives[i]) or "", 0))
+        n_restore = min(min_terms - len(keep_idx), len(drop_idx))
+        keep_idx.extend(drop_idx[:n_restore])
+        drop_idx = drop_idx[n_restore:]
+
+    return (
+        [positives[i] for i in sorted(keep_idx)],
+        [positives[i] for i in sorted(drop_idx)],
     )
-    SELECT concat_ws(' & ', '(' || pos || ')', neg)::tsquery AS q
-    FROM agg WHERE pos IS NOT NULL
+
+
+def assemble_tsquery(positives: list[str], negatives: list[str]) -> str:
+    """Rebuild a tsquery with the positives OR'd and the negations still AND'd.
+
+    Negation must stay conjunctive. Folding !x into the OR would match every
+    passage that merely lacks x, which is nearly the whole corpus -- an
+    exclusion would turn into the broadest possible inclusion.
+
+    Returns '' when there is nothing positive to match, including the
+    negation-only case ("-cancer"): a query that only says what it does not want
+    has no candidate set, and Postgres rejects an empty parenthesised tsquery
+    outright.
+    """
+    if not positives:
+        return ""
+    q = "(" + " | ".join(positives) + ")"
+    if negatives:
+        q += " & " + " & ".join(negatives)
+    return q
+
+
+def build_fts_tsquery(
+    parsed: str,
+    or_semantics: bool = True,
+    common: Mapping[str, int] | None = None,
+    min_terms: int = 3,
+) -> str:
+    """Turn websearch_to_tsquery's output into the tsquery the arm will run.
+
+    or_semantics=False returns the parse untouched -- that is the original
+    all-terms-required behaviour, kept reproducible on purpose.
+
+    Pure and database-free so it can be tested directly; the caller supplies
+    `common` from the materialised lexeme_df table.
+    """
+    if not or_semantics:
+        return parsed
+    positives, negatives = split_tsquery(parsed)
+    if common:
+        positives, _dropped = prune_common_terms(positives, common, min_terms)
+    return assemble_tsquery(positives, negatives)
+
+
+# Scoring every OR match is the arm's whole cost: ts_rank_cd has to decode
+# tsvector positions per row, and a title query OR-matches ~52k of 99,567
+# passages. The LIMIT is applied to that ranking, so nothing is truncated before
+# it is scored -- it is a top-N heapsort over the full match set.
+#
+# `documents` is joined AFTER the LIMIT. The previous shape joined first, which
+# ran ~52,000 primary-key lookups (158k buffer hits) to attach a title to 100
+# surviving rows. Result-identical: passages.doc_id is NOT NULL with a foreign
+# key to documents, so the inner join cannot drop a passage.
+_FTS_SEARCH_JOIN_LAST = """
+    WITH cand AS (
+        SELECT p.passage_id, p.doc_id, p.text,
+               ts_rank_cd(p.tsv, %(tq)s::tsquery, 32) AS score
+        FROM passages p
+        WHERE p.tsv @@ %(tq)s::tsquery
+        ORDER BY score DESC, p.passage_id
+        LIMIT %(k)s
+    )
+    SELECT c.passage_id, c.doc_id, c.text, d.title, c.score
+    FROM cand c
+    JOIN documents d USING (doc_id)
+    ORDER BY c.score DESC, c.passage_id
 """
 
-_FTS_AND_TSQUERY = "SELECT websearch_to_tsquery('english', %(q)s) AS q"
+# Pre-fix shape, kept so fts_join_after_limit=False reproduces the old plan.
+_FTS_SEARCH_JOIN_FIRST = """
+    SELECT p.passage_id, p.doc_id, p.text, d.title,
+           ts_rank_cd(p.tsv, %(tq)s::tsquery, 32) AS score
+    FROM passages p
+    JOIN documents d USING (doc_id)
+    WHERE p.tsv @@ %(tq)s::tsquery
+    ORDER BY score DESC, p.passage_id
+    LIMIT %(k)s
+"""
+
+
+@lru_cache(maxsize=8)
+def _common_lexemes(min_frac: float) -> Mapping[str, int]:
+    """Corpus-common lexemes, loaded once per process and per threshold.
+
+    Cached because it is a corpus statistic that changes only when lexeme_df is
+    rebuilt, and a per-query round trip for ~134 rows would eat the saving this
+    whole mechanism exists to produce. Restart the process (or clear this cache)
+    after `rebuild_lexeme_df`.
+    """
+    return db.load_common_lexemes(min_frac)
 
 
 def fts_search(query: str, k: int | None = None) -> list[Hit]:
@@ -79,27 +230,36 @@ def fts_search(query: str, k: int | None = None) -> list[Hit]:
     to_tsquery does readily.
 
     ts_rank_cd is a length-normalised TF-IDF variant -- cover density, not BM25.
-    Named `fts` throughout so the eval table does not overclaim. Note that
-    ts_rank_cd already scores partial matches by cover density, so ORing the
-    terms changes which passages are *candidates*, not how they are ranked.
+    Named `fts` throughout so the eval table does not overclaim. In particular
+    it has no idf term, so dropping a common query term is not "down-weighting
+    it to near zero" the way it would be under BM25: the term stops contributing
+    to any cover at all. That is a real change to the ranking and is measured.
     """
     s = get_settings()
     k = k or s.bm25_topk
 
-    qsql = _FTS_OR_TSQUERY if s.fts_or_semantics else _FTS_AND_TSQUERY
-    sql = f"""
-        WITH tsq AS ({qsql})
-        SELECT p.passage_id, p.doc_id, p.text, d.title,
-               ts_rank_cd(p.tsv, tsq.q, 32) AS score
-        FROM passages p
-        JOIN documents d USING (doc_id),
-             tsq
-        WHERE p.tsv @@ tsq.q
-        ORDER BY score DESC, p.passage_id
-        LIMIT %(k)s
-    """
+    common: Mapping[str, int] = {}
+    if s.fts_or_semantics and s.fts_prune_common_terms:
+        # An empty lexeme_df (never rebuilt) yields an empty map, which makes
+        # pruning inert rather than an error. Degrade to slow, never to wrong.
+        common = _common_lexemes(s.fts_df_max_frac)
+
+    sql = _FTS_SEARCH_JOIN_LAST if s.fts_join_after_limit else _FTS_SEARCH_JOIN_FIRST
+
     with db.connection() as conn:
-        rows = conn.execute(sql, {"q": query, "k": k}).fetchall()
+        parsed = conn.execute(_PARSE_SQL, {"q": query}).fetchone()["tq"]
+        tq = build_fts_tsquery(
+            parsed,
+            or_semantics=s.fts_or_semantics,
+            common=common,
+            min_terms=s.fts_min_terms,
+        )
+        if not tq.strip():
+            # No positive operand: an all-stop-word or negation-only query.
+            # Postgres cannot cast an empty tsquery here, and there is nothing
+            # to match anyway.
+            return []
+        rows = conn.execute(sql, {"tq": tq, "k": k}).fetchall()
 
     return [
         Hit(
