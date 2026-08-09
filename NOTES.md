@@ -5,6 +5,154 @@ they were. Newest session first.
 
 ---
 
+## Session 4 — 2026-08-08
+
+Theme: **the pipeline finally beats its own baseline, and two audits found that
+the repo had stopped describing itself accurately.** The fine-tune completed,
+the lexical arm got 8.7× faster *and* better, and then a pair of review agents
+turned up a security bug, a stale-checkpoint trap, and a README that had
+drifted into claiming the opposite of what the code did.
+
+### 1. The fine-tune ran, and it worked
+
+Job 8740006 completed in 39:48. 8,788 pairs, 275 steps, 1 epoch.
+
+**It trained on CPU despite holding a GPU.** `torch 2.13.0+cu130` is built for
+CUDA 13.0; the cluster's driver is 570.211.01 = CUDA 12.8. CUDA guarantees
+compatibility only within a major family, so `cuda.is_available()` is False and
+it silently fell back. Torch's own warning says "driver is too old", which sent
+me looking at the cluster — the driver is current; the *wheel* is wrong. Root
+cause is `pyproject` pinning `torch>=2.3` with no index, and PyPI's default
+linux wheel for 2.13.0 being the cu130 build. Fix is verified but **not
+applied** (see "Where to pick up").
+
+Mining stats vindicate the self-match exclusion emphatically:
+
+| | |
+|---|---|
+| queries used | 619 / 619 (none without negatives) |
+| positives / negatives | 3,836 / 4,952 |
+| canonical twins blocked | 29 |
+| **self-matches blocked** | **1,895** |
+
+**1,895 — roughly 38% of all negatives — were the papers' own abstracts.**
+Queries are titles, so search returns the source paper at rank ~1, and it is
+never in its own qrels. Unfiltered, a third of the training signal would have
+taught the model that correct answers are wrong.
+
+### 2. Results
+
+| arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
+|---|---:|---:|---:|---:|---:|
+| `fts` | 0.0501 | 0.0172 | 0.0448 | 174.0 | 609.4 |
+| `dense` | 0.1236 | **0.0536** | 0.1100 | **20.5** | **29.7** |
+| `hybrid` | 0.1284 | 0.0500 | 0.1010 | 187.6 | 564.5 |
+| `hybrid_rerank` | **0.1388** | 0.0522 | **0.1287** | 1185.2 | 1907.0 |
+
+Both fused arms now beat `dense` on Recall@50, where in session 3 both lost to
+it. `dense` still holds nDCG@10.
+
+**The controlled comparison is the number worth having.** Three things changed
+at once, so the table above cannot attribute the gain. Moving the checkpoint
+aside and re-running `hybrid_rerank` with everything else identical
+(`docs/ablation_offtheshelf.md`):
+
+| `hybrid_rerank` | Recall@50 | nDCG@10 | MRR |
+|---|---:|---:|---:|
+| off-the-shelf | 0.1254 | 0.0467 | 0.0912 |
+| fine-tuned | **0.1388** | **0.0522** | **0.1287** |
+| | +10.7% | +11.8% | **+41.1%** |
+
+This resolves the falsifier recorded in session 3: `w_fts=0.5` was justified by
+fusion being candidate generation for a reranker, contingent on that reranker
+actually working. It does, so the setting stands.
+
+### 3. Lexical term pruning — faster *and* better
+
+Dropping near-universal terms before the OR (`gene` is in 47.8% of passages,
+`express` 40.1%, `chromatin` 24.9%), plus joining `documents` after the LIMIT
+instead of doing ~40k index lookups to decorate 100 rows:
+
+| | before | after | |
+|---|---:|---:|---|
+| Recall@50 | 0.0462 | 0.0501 | +8.5% |
+| nDCG@10 | 0.0146 | 0.0172 | +17.6% |
+| p50 | 1531 ms | 175 ms | **8.7× faster** |
+
+Benchmarked as a speed-for-quality trade; it wasn't one. Those terms were also
+polluting `ts_rank_cd`'s cover density, so removing them sharpens ranking as
+well as shrinking the scan. `scripts/bench_fts.py` refuses to print latency
+without quality, which is why this was caught as a win rather than assumed.
+
+### 4. What the audits found
+
+Two review agents were run because a lot had been committed on the strength of
+*outcomes* — a benchmark improved, tests passed — rather than line-by-line
+review. Both notes files are in `docs/agent-notes/`.
+
+**Fixed this session:**
+
+- **Socket directory was 2755, not the `0700` its own comment claimed.**
+  `pg_start.sh` chmods PGDATA and the password file but never RUNDIR, and that
+  directory is the stated justification for `--auth-local=trust`. Any
+  group member reaching the node had password-free superuser access to the
+  database; only the group-restricted parent was actually protecting it. Now
+  chmodded explicitly.
+- **`_retrieval_fingerprint()` was blind to the settings that determine its own
+  training pool.** It exists so "a stale checkpoint is identifiable rather than
+  silently wrong", and recorded the fusion settings but none of the lexical
+  pruning ones. The shipped checkpoint is stale by its own criterion: its
+  negatives were mined the day before pruning landed, and measured over the
+  same 171 queries the fts arm's top-50 retained a mean of 0.265 of its
+  passages — ~80% turnover in one of the two inputs those negatives came from.
+  **The trap generalises: pruning was filed as a latency fix and changed the
+  training distribution as a side effect.**
+- **Published OpenAPI text said the reranker was off-the-shelf**, along with
+  README, START_HERE and NOTES. The honesty constraint failing in the direction
+  nobody watches — understating what had been done, in text served to callers.
+- **`DocumentModel.source` documented three sources; there are eight.** Clients
+  treating it as an enum would break on ~6% of documents.
+
+**Found and NOT fixed** — carried forward:
+
+- **"Recall@50" is recall over ~35 documents, and the arms get unequal slots.**
+  `search(k=50)` returns 50 *passages*; the collapse to documents happens
+  after. `dense` averages 33.3 distinct docs in its top-50 (min 18), `fts`
+  41.4. So dense is graded on ~20% fewer slots in a table built for arm-vs-arm
+  comparison — and inconsistently with nDCG@10 in the same table, which does
+  get 10 genuine documents. The bias runs *against* the winner, so "dense
+  wins nDCG" is conservative rather than inflated, but this belongs in the
+  harness docstring and the README.
+- **`split_tsquery`'s premise is false.** It assumes
+  `websearch_to_tsquery` only emits a top-level conjunction; the English word
+  "or" produces a `|`. 6 of 790 eval queries hit this, and pruning silently
+  never applies inside the OR branch.
+- **`assemble_tsquery` hoists a negation out of an OR branch** —
+  `chromatin or cancer -gene` becomes `('chromatin'|'cancer') & !'gene'`, so
+  the exclusion leaks onto the chromatin side. Unreachable from the eval set
+  (0/790 queries use `!`), so no published number is affected, but reachable
+  from `regsearch search` and `/search`, which take free-form text.
+- **`fts_min_terms=3` disables pruning for any short query**, not just
+  all-common ones. Fires on 14/171 test queries.
+- **The tsquery builders and `rrf_fuse` have no tests at all.** 95 tests pass
+  and none touch that path.
+
+### 5. Also this session
+
+- `slurm/eval.sbatch` moves the ablation off the 1-CPU node: 15 min → 5:29 on
+  8 cores. **Latency columns are consequently not comparable across sessions** —
+  the `fts` speedup is same-node, same-harness and real; the `dense` and
+  `hybrid_rerank` deltas partly reflect 8× the threads.
+- `scripts/start.sh` had three bugs, including mode 644 — so `./scripts/start.sh`
+  died with "Permission denied" instead of reaching the guard explaining it must
+  be sourced. The guard was unreachable by exactly the mistake it existed for.
+- The judging pool is generated: 704 candidates, 40 realistic queries.
+- The first fine-tune launch died on `KeyError: 'EPOCHS'` — `: "${X:=1}"` sets a
+  shell variable, and the training block is a child process reading `os.environ`.
+  It failed after passing preflight and allocating a GPU.
+
+---
+
 ## Session 3 — 2026-08-07 (late)
 
 Theme of this session: **the two cheap wins from session 2 were attempted, and

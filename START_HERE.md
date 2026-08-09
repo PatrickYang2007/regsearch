@@ -7,7 +7,7 @@ project and want to know where it stands and what to do next.
 - [NOTES.md](NOTES.md) = the detailed dev log (dense; written for future-you mid-task).
 - [README.md](README.md) = the public-facing description for people who find the repo.
 
-Last updated: **2026-08-07**, end of session 3.
+Last updated: **2026-08-08**, end of session 4.
 
 ---
 
@@ -47,163 +47,82 @@ serve them over HTTP, and produce the comparison table.
 | Fusion weighting | **done** — swept and shipped at `w_fts=0.5` (§3) |
 | Training labels (from citations) | 8,075 pairs harvested |
 | Eval set | 790 queries (171 test / 619 train) |
-| Ablation table | generated → [docs/ablation.md](docs/ablation.md), **two rows now stale** (§3) |
+| Ablation table | current → [docs/ablation.md](docs/ablation.md), all four arms |
 | Unit tests | 95, passing |
-| Web API (FastAPI) | **exists and works** — but no `regsearch serve` command yet |
-| Reranker fine-tune script | **written, never run** — no trained model exists |
-| Trained reranker | **not done** — needs a GPU job |
-| Human-judged eval set | **not done** |
+| Web API (FastAPI) | **works**, wired to `regsearch serve` |
+| **Trained reranker** | **done** — fine-tuned, +41% MRR over off-the-shelf |
+| Lexical arm latency | **fixed** — 8.7× faster and better quality |
+| GPU actually usable | **no** — wrong torch wheel; fix verified, not applied |
+| Human-judged eval set | **not done — this is yours, see [JUDGING.md](JUDGING.md)** |
 
-**Right now Postgres is not running.** That's normal, not a problem — see §4.
+**Postgres may or may not be running** — it dies with whatever Slurm allocation
+started it. `scripts/pg_start.sh` is idempotent; run it and move on (§4).
 
-**The important thing to not get wrong:** writing the fine-tuning script is not
-the same as having a fine-tuned model. `data/models/reranker/` does not exist,
-so `hybrid_rerank` is still the public off-the-shelf checkpoint, exactly as it
-was in session 2. Nothing in this repo has been trained.
+**The one thing to verify before trusting any rerank number:**
+
+```bash
+ls data/models/reranker/config.json    # must exist
+ls -d data/models/reranker_trained     # must NOT exist
+```
+
+If `reranker_trained` is present, an A/B comparison was interrupted before
+restoring the checkpoint, and `hybrid_rerank` is silently serving the
+off-the-shelf model. Fix with `mv data/models/reranker_trained data/models/reranker`.
 
 ---
 
 ## 3. The results, and what they mean
 
-| arm | Recall@50 | nDCG@10 | MRR | p50 ms | p95 ms |
-|---|---:|---:|---:|---:|---:|
-| `fts` | 0.0462 | 0.0146 | 0.0430 | 1434.4 | 3265.0 |
-| `dense` | **0.1236** | **0.0536** | **0.1100** | **38.3** | **50.3** |
-| `hybrid` ⚠️ stale | 0.0992 | 0.0339 | 0.0792 | 1409.1 | 3369.9 |
-| `hybrid_rerank` ⚠️ stale | 0.1212 | 0.0513 | 0.0971 | 9630.2 | 15192.2 |
+| arm | Recall@50 | nDCG@10 | MRR | p50 ms |
+|---|---:|---:|---:|---:|
+| `fts` | 0.0501 | 0.0172 | 0.0448 | 174.0 |
+| `dense` | 0.1236 | **0.0536** | 0.1100 | **20.5** |
+| `hybrid` | 0.1284 | 0.0500 | 0.1010 | 187.6 |
+| `hybrid_rerank` | **0.1388** | 0.0522 | **0.1287** | 1185.2 |
 
-> ⚠️ **The bottom two rows no longer describe the code.** They were measured
-> before fusion was weighted, and the shipped default is now `w_fts=0.5`. Nobody
-> has re-measured them, and **no replacement numbers have been invented** — the
-> table gets re-run in one pass once the GPU fine-tune finishes, so the new
-> fusion and the trained reranker land together. The top two rows are still
-> correct: neither arm touches the fusion weights.
+**Plain reading: the full pipeline now wins on finding things, and plain `dense`
+still wins on ordering the top handful — while being ~58x faster.** Reranking
+pulls more correct papers into the top 50 and gets the first correct one higher,
+but hasn't overtaken dense on the graded top-10 measure.
 
-**Plain reading: the simplest arm wins.** `dense` beats everything on every
-quality metric *and* is about 40× faster. The two "sophisticated" arms were
-worse than the simple one.
+In session 3 both fused arms *lost* to plain dense. Two changes flipped that:
+the reranker got fine-tuned, and the keyword arm stopped being nearly useless.
 
-Why that happened, in one line each:
+### What the fine-tune actually bought
 
-- **`hybrid` lost** because rank fusion gave both inputs an equal vote, and
-  the keyword arm is much weaker — so a bad arm drags a good one down.
-- **`hybrid_rerank` didn't rescue it** because it's re-ranking the already-worse
-  fused list, using an off-the-shelf model that was never trained on your data.
+Three things changed at once, so that table can't tell you which one helped. So
+the checkpoint was moved aside and `hybrid_rerank` re-run with everything else
+identical — same queries, same fusion weights, same keyword config:
 
-**This is a good result, not a failure.** "I built a hybrid search system and
-measured that the fancy parts made it worse" is a stronger interview story than
-a tidy chart, because it shows the evaluation was real.
+| `hybrid_rerank` | Recall@50 | nDCG@10 | MRR |
+|---|---:|---:|---:|
+| off-the-shelf model | 0.1254 | 0.0467 | 0.0912 |
+| **your fine-tuned model** | **0.1388** | **0.0522** | **0.1287** |
+| | +10.7% | +11.8% | **+41.1%** |
 
-### The obvious fix was tried, and it didn't work
+That is the number worth quoting, because it is the only one that isolates the
+fine-tune from everything bundled with it.
 
-Session 3's first job was what session 2 called the cheapest win available: stop
-giving the weak keyword arm an equal vote. Fusion now takes per-arm weights, and
-nine settings between 0 and 1 were swept.
-
-**The sweep said no.** There is no setting that makes fusion better than plain
-`dense` on ranking quality. The trade is completely one-directional: the more
-keyword evidence you mix in, the more relevant papers turn up *somewhere* in the
-top 50, and the worse the ordering gets at the very top. No middle setting
-escapes it.
-
-| keyword weight | Recall@50 | nDCG@10 | MRR |
-|---:|---:|---:|---:|
-| 0.0 — dense only | 0.1236 | **0.0536** | **0.1100** |
-| 0.5 — **what shipped** | **0.1267** | 0.0449 | 0.0916 |
-| 1.0 — the old equal vote | 0.0992 | 0.0339 | 0.0792 |
-
-**So why ship 0.5 at all, if 0 ranks better?** Because in this pipeline fusion
-isn't the last step — it hands its results to the cross-encoder, whose entire job
-is to fix the ordering. What fusion needs to give it is the *biggest pile of
-correct papers to reorder*, and 0.5 gives the biggest pile. In other words the
-`hybrid` row is a candidate-generator being graded as if it were a final answer,
-which is why its nDCG looks bad.
-
-**That reasoning has a test attached to it.** If the fine-tuned reranker turns
-out not to beat the off-the-shelf one, the justification is gone and the weight
-should go back to 0. Don't let it sit at 0.5 unexamined.
+**Known limitation, state it if asked:** those training negatives were mined
+*before* the keyword arm was optimised, and that change turned over ~80% of what
+the keyword arm returns. So the model is trained against a candidate pool it no
+longer sees. The comparison above is still valid — both rows ran under today's
+configuration — but retraining would likely do better.
 
 ### Two things you must not claim about these numbers
 
 1. **These are not human relevance judgements.** The labels come from citations:
-   a query is a paper's title, and the "correct answers" are the papers it cites.
-   That's weak supervision. Call it that.
-2. **The reranker is off-the-shelf**, not fine-tuned. There is no trained model
-   in this project yet — the training script exists, but it has never been run
-   on real data.
+   a query is a paper's title, and the "correct answers" are the papers it
+   cites. That is weak supervision, and the reranker *trains on the same
+   signal*, so it is being graded against the family of labels it learned from.
+   Say so.
+2. **The keyword arm is not BM25.** It is Postgres `ts_rank_cd`. Related, but a
+   reviewer who knows retrieval will catch it. It is named `fts` everywhere for
+   this reason.
 
-Also, permanently: **the keyword arm is not BM25.** It's Postgres `ts_rank_cd`.
-Related, but a reviewer who knows information retrieval will catch the
-difference. It's named `fts` everywhere on purpose.
-
----
-
-## 3a. FIRST THING: is the trained reranker in place?
-
-```bash
-ls data/models/reranker/config.json      # should exist
-ls -d data/models/reranker_trained       # should NOT exist
-```
-
-On 2026-08-08 the trained checkpoint was temporarily moved to
-`data/models/reranker_trained` to measure the OFF-THE-SHELF reranker under
-otherwise identical settings — the only way to attribute the gain to
-fine-tuning rather than to the fusion and lexical changes that landed at the
-same time. It is supposed to be moved back immediately afterwards.
-
-**If `data/models/reranker_trained` still exists, that restore did not happen.**
-`hybrid_rerank` is silently running the public checkpoint, and any eval run in
-that state measures the baseline while looking exactly like a normal run.
-
-```bash
-mv data/models/reranker_trained data/models/reranker
-.venv/bin/python -c "from regsearch.retrieve.rerank import model_path; print(model_path())"
-# must print the data/models/reranker path, NOT cross-encoder/ms-marco-...
-```
-
-## 3b. IN FLIGHT as of 2026-08-07 23:30 — check this first tomorrow
-
-A GPU fine-tune (**Slurm job 8740006**) was left running. It is the first real
-training run of the cross-encoder, so it changes what `hybrid_rerank` means.
-
-**Check whether it survived:**
-
-```bash
-sacct -j 8740006 --format=JobID,State,Elapsed,ExitCode
-ls data/models/reranker/          # checkpoint lands here if it worked
-tail -40 slurm/logs/rerank-ft-8740006.err
-```
-
-**If `data/models/reranker/` exists, `hybrid_rerank` is now a TRAINED model and
-every rerank number in this repo is out of date.** `retrieve/rerank.py` prefers
-that directory automatically, so the arm changed meaning the moment the file
-appeared — nothing announces it. Re-run the ablation before quoting anything:
-
-```bash
-regsearch eval --split test --origin citation --out docs/ablation.md
-```
-
-That re-run also clears the `⚠️ stale` markers on the `hybrid` /
-`hybrid_rerank` rows, which are stale for a *second* reason: they predate
-weighted fusion (`w_fts=0.5`).
-
-**Likely failure mode:** the job mines negatives by running live `hybrid`
-searches against Postgres, which lives in the OnDemand code-server allocation.
-If that allocation ended before mining finished (~35 min from the timestamp
-above), the job died with a connection error. That is recoverable — restart
-Postgres and resubmit:
-
-```bash
-scripts/pg_start.sh
-sbatch slurm/finetune_rerank.sbatch
-```
-
-Mining takes ~40 min for 619 queries and has no cache, so a resubmit re-pays it
-in full.
-
-**Also unfinished:** an agent was optimising the `fts` arm's 1.4 s latency and
-was cut off. It left `scripts/bench_fts.py` (uncommitted); `search.py` was never
-changed, so nothing is half-applied.
+Also worth knowing: latency columns are **not** comparable across sessions —
+this table ran on 8 cores, earlier ones on 1. The `fts` speedup is the one
+measured on the same node with the same harness, so it is the real one.
 
 ## 4. Getting it running
 
@@ -225,7 +144,7 @@ once per terminal is the least typing.
 **Why you have to do this every time:** Postgres here isn't a background service
 like on a laptop. You have no root on the cluster, so it runs as an ordinary
 process inside a container, owned by whatever Slurm job started it. When that job
-ends, the process is killed with it. Your *data* is safe on `/vast` (888 MB in
+ends, the process is killed with it. Your *data* is safe on `/vast` (~850 MB in
 `data/pgdata`) — it's only the server that goes away. `pg_start.sh` restarts it
 and records the new node name so clients can find it.
 
@@ -262,8 +181,7 @@ curl 'localhost:8000/health'
 curl 'localhost:8000/search?q=enhancer+promoter+looping&arm=dense&k=5'
 ```
 
-There is **no `regsearch serve` command yet** — that's the one loose end from
-session 3. Until it's wired, launch uvicorn directly as above.
+Or just `regsearch serve` — it wraps the same thing and defaults to loopback.
 
 It binds to loopback on purpose. On a shared node, a search service on
 `0.0.0.0` is reachable by every other person logged into that machine. Use an
@@ -284,74 +202,103 @@ node.
 
 ---
 
-## 5. What to do next
+## 5. What to do next — pick up here
 
-In the order I'd do them. The first two go together and are the whole story of
-the next session.
+Ordered. The first two are small and mechanical; #3 is yours and gates
+everything else.
 
-### 1. Actually run the reranker fine-tune — *the one big thing left*
+### 1. Make the GPU actually usable — *10 minutes, blocks all future training*
 
-Everything is written and nothing has been trained. The script mines hard
-negatives from real fused search results, filters out the three kinds of
-poisoned label (see NOTES.md §3), and saves to `data/models/reranker/` — where
-the search code picks it up automatically and stops falling back to the public
-model.
+Last session's fine-tune allocated an A5000 and **trained on CPU**. The wheel is
+wrong: `torch 2.13.0+cu130` needs a CUDA 13 driver, the cluster has 12.8. This
+is not a cluster problem — the driver is current — it is a packaging default
+(PyPI ships the cu130 build for linux, and `pyproject` pins only `torch>=2.3`).
+
+The fix is verified on a real GPU node (`torch.cuda.is_available() -> True`,
+same torch version, no other dependency moves). Append to `pyproject.toml`:
+
+```toml
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu126" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+```
+
+Then `uv lock && uv sync --extra embed`. `explicit = true` is load-bearing —
+without it, everything else would also resolve from the PyTorch index.
+
+Full evidence in `docs/agent-notes/torch-cuda.md`. **Afterwards, delete the
+6.3 GB probe venv:** `rm -rf .uv_cache/torchprobe`.
+
+### 2. Retrain the reranker on the current candidate pool
+
+The shipped checkpoint's negatives were mined *before* lexical term pruning, and
+pruning turned over ~80% of what the keyword arm returns. The model is trained
+against a pool it no longer sees. It still beat the off-the-shelf baseline by
+41% MRR, so this is an improvement opportunity, not a defect.
+
+With #1 done this is fast on a real GPU:
 
 ```bash
-scripts/pg_start.sh                    # MUST be up first; the job preflights it
+scripts/pg_start.sh                       # must be up BEFORE sbatch
 sbatch slurm/finetune_rerank.sbatch
+# then re-measure:
+sbatch slurm/eval.sbatch
 ```
 
-Budget ~2 hours, but **most of that is not GPU work**. Mining the training
-examples runs one real hybrid search per query, 619 times, at ~1.4 s each — call
-it 15-25 minutes of database time before the first gradient step. The training
-itself is minutes on an A100.
+`_retrieval_fingerprint()` now records the pruning settings, so the new
+checkpoint's `training_meta.json` will show whether it matches the retriever.
 
-The job checks after training that the saved checkpoint is actually the one the
-search code will load. That check exists because the alternative failure — a save
-that produced no config file — is invisible: the eval just quietly reports the
-old baseline numbers a second time and nothing looks wrong.
+### 3. Hand-judge the pool — *only you can do this*
 
-### 2. Re-run the comparison table and replace the two stale rows
+`data/judging_pool.csv`, 704 candidates over 40 realistic queries, ~2 hours.
+Instructions in **[JUDGING.md](JUDGING.md)**.
+
+Until this exists, **every number in this repo is weak supervision** — the
+reranker is graded against the same signal family it trained on. This is the
+single thing standing between the project and a table that needs no asterisk.
 
 ```bash
-regsearch eval --split test --origin citation --out docs/ablation.md
+regsearch import-qrels data/judging_pool.csv
+regsearch eval --origin manual --out docs/ablation_manual.md
 ```
 
-One run covers both changes at once — weighted fusion *and* the trained
-reranker. Then update the same table in `README.md` and drop the ⚠️ markers.
+### 4. Fix what the code audit found (`docs/agent-notes/audit-code.md`)
 
-**Then answer the question from §3:** did the trained reranker beat the
-off-the-shelf one? If not, the reason for keeping `w_fts=0.5` is gone and it
-should go back to 0.
+None of these invalidate a published number; all are real:
 
-### 3. Wire up `regsearch serve`
+- **"Recall@50" is recall over ~35 documents, and arms get unequal slots.**
+  `search(k=50)` returns 50 *passages*, collapsed to documents afterward —
+  `dense` averages 33.3 distinct docs, `fts` 41.4. Document it in the harness
+  and README, or retrieve deeper and truncate to a fixed document count.
+- **`split_tsquery` assumes a top-level AND**, but the word "or" makes
+  Postgres emit a `|`. 6 of 790 eval queries hit it; pruning silently skips
+  the OR branch.
+- **`assemble_tsquery` hoists negations out of OR branches** —
+  `chromatin or cancer -gene` excludes `gene` from both sides. Not reachable
+  from the eval set, but reachable from `/search` free-form input.
+- **The tsquery builders and `rrf_fuse` have zero tests.** 95 tests pass and
+  none touch that path — which is how the above survived.
 
-The API works; there's just no CLI command for it. One Typer command calling
-`regsearch.api.app.run()`. **Import it inside the function body, not at the top
-of `cli.py`** — `fastapi` lives in an optional extra, and a top-level import
-would make every `regsearch ingest` on a login node require it.
+### 5. Re-run the RRF sweep
 
-### 4. Cap the keyword arm's candidate set
+`scripts/tune_rrf.py`'s table predates term pruning, so it describes fusing a
+weaker keyword arm than the one that ships. Its `w_fts=0.5` row disagrees with
+the current `hybrid` row for the same setting. Cheap — it caches retrieval and
+re-fuses offline.
 
-`fts` takes 1.4 seconds per query. The reason: it ORs the query terms, which is
-what fixed its accuracy, but it means ranking ~32,000 matched passages instead
-of 1. Limit the candidates *before* scoring them. The recall came from the OR —
-nothing requires ranking every single match.
+### Lower priority
 
-This got more valuable in session 3: it's also what makes the fine-tune's mining
-phase take 25 minutes, so fixing it speeds up every future training run.
-
-### 5. Build a human-judged eval set — *needs you, not a model*
-
-`export_pool_for_judging` is written and has never been run. It pools the top
-results from all four arms and emits a CSV for you to hand-score.
-
-**You have to do the judging yourself.** Generating these labels with a model
-would make the entire evaluation circular. Until this exists, every number in the
-repo is weak supervision — which is why `load_eval_set` refuses to default to it.
-
----
+- **Real BM25** as a genuine fifth arm (`fts` is `ts_rank_cd`, and always will
+  be — this would be a new arm, not a relabel).
+- **A `/answer` endpoint**: retrieve, then have Claude write a cited answer.
+  This is the only genuinely LLM-shaped piece; `anthropic` is already in the
+  `serve` extra. At demo volume it costs single-digit dollars.
+- **Patents and theses** (49 + 48 documents) are in the corpus because Europe
+  PMC indexes them. Nobody decided that. Worth an explicit call.
 
 ## 6. Things that will trip you up
 
@@ -371,11 +318,15 @@ carry a comment claiming the opposite; it was corrected in session 3.)
 **`uv sync` will remove pytest.** It was installed ad hoc. Use
 `uv sync --extra dev` to keep the 95 tests runnable.
 
-**Don't confuse "the training script exists" with "a model was trained."** The
-fine-tune has only ever been run as a 4-query smoke test, which wrote to a
-scratch directory on purpose — dropping a 2-step model into
-`data/models/reranker/` would silently swap out the baseline and quietly corrupt
-the next comparison table.
+**A checkpoint appearing in `data/models/reranker/` silently changes what
+`hybrid_rerank` means.** `rerank.py` prefers that directory and falls back to the
+public model only when it's absent — nothing announces the switch. So an A/B
+comparison that moves the checkpoint aside must move it back, and a smoke-test
+run must never write there. Check §2 before trusting any rerank number.
+
+**Your GPU jobs may not be using the GPU.** `torch.cuda.is_available()` is
+currently `False` — wrong wheel, see §5.1. Jobs still complete; they just run on
+CPU and take far longer. `training_meta.json` records `"device"`, so check it.
 
 **The corpus contains 49 patents and 48 theses.** Europe PMC indexes them, so
 they came along with everything else. Not necessarily wrong, but nobody ever
@@ -385,16 +336,26 @@ decided to include them. Worth an explicit call before quoting a headline number
 
 ## 7. Current git state
 
-Committed to `github.com/PatrickYang2007/regsearch` (public). Session 3 added:
+Committed and pushed to `github.com/PatrickYang2007/regsearch` (public).
+Session 4 added, newest first:
 
 ```
-f0f8c64  Add cross-encoder fine-tune with hard-negative mining
-8ce7746  Correct embed.sbatch's stale Unix-socket comment
-ac1c434  Add FastAPI service over the existing retrieval arms
-4f38ce9  Weight the RRF arms; fusion trades top-precision for depth-recall
-62647dc  Set HF_HOME in config so weights stay off the home quota
-43a1590  Add START_HERE.md orientation guide
+Bring README in line with what the code actually does
+Record lexical pruning settings in the training fingerprint
+Correct published OpenAPI text that no longer matches reality
+Actually chmod the socket directory that trust auth depends on
+Record the torch/CUDA diagnosis and the verified fix
+Measure the fine-tuned reranker against the off-the-shelf one
+Run the ablation as a batch job; fix scripts/start.sh
+Add judging guide for the manual eval set
+Wire serve, train-reranker, and the judging workflow into the CLI
+Prune corpus-wide terms from the lexical query: 8.7x faster and better
 ```
+
+Two of those are worth knowing about specifically: the socket-permission
+commit is a **security fix** (trust auth was relying on a directory mode the
+script never actually set), and the fingerprint commit records that the
+**shipped checkpoint is stale by its own criterion** — see §5.2.
 
 `4f38ce9` is the one worth re-reading — its commit message carries the full
 weight sweep and the argument for shipping a setting that scores worse on two of
