@@ -45,8 +45,9 @@ Four retrieval arms, the same four the offline evaluation measures:
 | `hybrid_rerank` | the fused list re-scored by a cross-encoder |
 
 Relevance labels behind the published comparison are citation-derived weak
-supervision, not human judgements, and the cross-encoder is an off-the-shelf
-checkpoint rather than a fine-tuned one.
+supervision, not human judgements. The cross-encoder is fine-tuned on that same
+weak signal, so `hybrid_rerank` is scored against the family of labels it
+learned from — a measured result, but not a human-judged one.
 """
 
 app = FastAPI(
@@ -93,15 +94,23 @@ def search_endpoint(
 ) -> SearchResult:
     """Run one retrieval arm and return the ranked passages.
 
-    Cost, measured on the 1-CPU dev node: `dense` is the fast arm (~40 ms p50),
-    `fts` runs ~1.4 s because it ORs its query terms and therefore ranks tens of
-    thousands of candidate passages, `hybrid` pays for both.
+    Cost is dominated by the arm and by how many cores the host has, so the
+    figures below name their hardware rather than pretending to be portable.
 
-    **`hybrid_rerank` takes roughly 5-10 SECONDS per query on CPU** -- it runs a
-    cross-encoder forward pass over 100 fused candidates, and the first call
-    additionally loads the model. It is not the default for that reason; ask for
-    it explicitly and expect to wait. On this deployment it also monopolises the
-    single CPU, so concurrent requests queue behind it.
+    `dense` is the fast arm: ~20 ms p50 on 8 cores, ~40 ms on one. `fts` runs
+    ~175 ms -- it ORs its query terms, so it ranks thousands of candidates
+    rather than one, and corpus-wide terms are pruned first to keep that set
+    from ballooning. `hybrid` pays for both.
+
+    **`hybrid_rerank` is the slow arm: ~1.2 s per query on 8 cores, and 5-10
+    SECONDS on a single core.** It runs a cross-encoder forward pass over 100
+    fused candidates. It is not the default for that reason; ask for it
+    explicitly and expect to wait. On a single-core host it also monopolises
+    the CPU, so concurrent requests queue behind it.
+
+    Every arm's FIRST call additionally pays a ~12 s model load, which lands
+    inside the reported `latency_ms`. Latency measured on a cold process is
+    meaningless; warm it before timing anything.
 
     `arm` is validated against the four known arms before it reaches the
     retrieval layer; anything else is a 422.

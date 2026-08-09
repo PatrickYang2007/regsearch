@@ -101,7 +101,14 @@ class PassageModel(BaseModel):
 
 class DocumentModel(BaseModel):
     doc_id: int
-    source: str = Field(description="Europe PMC source: MED | PMC | PPR.")
+    source: str = Field(
+        description=(
+            "Europe PMC source database. Eight occur in this corpus: MED "
+            "(PubMed, 15,256), PPR (preprints, 4,226), AGR (169), PAT "
+            "(patents, 49), ETH (theses, 48), PMC (34), CBA (5), CTX (4). "
+            "Treat it as an open string, not an enum."
+        )
+    )
     ext_id: str
     pmid: str | None = None
     pmcid: str | None = None
