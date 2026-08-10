@@ -7,6 +7,13 @@ make an unfair comparison hard:
     would let a chunkier arm win by returning three passages from one paper;
   * latency is wall-clock per query, reported at p50/p95, not averaged (a mean
     hides the tail that actually determines whether a service feels slow).
+
+One place it does not manage that, stated up front because the number is
+published: "Recall@50" is not recall over 50 documents. Each arm is asked for 50
+PASSAGES, and those collapse to however many distinct documents they happen to
+cover -- a different count for each arm. See the comment at the collapse in
+`evaluate_arm` for the measured per-arm slot counts and which way the resulting
+bias runs. nDCG@10 is not affected.
 """
 
 from __future__ import annotations
@@ -30,6 +37,13 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class ArmResult:
+    """One arm's scores over the whole query set.
+
+    `recall_at_50` is named for the 50 passages retrieved, not 50 documents;
+    the field name is kept because published files and scripts parse it. See
+    the caveat in `evaluate_arm` for what it actually counts.
+    """
+
     arm: str
     n_queries: int
     recall_at_50: float
@@ -92,6 +106,10 @@ def evaluate_arm(
     a cluster representative before scoring. Without it an arm that returns the
     preprint when the qrel names the published version is charged a miss for
     finding the right paper. Pass None to score raw doc_ids.
+
+    `k_recall` is a PASSAGE depth, not a document depth: it is what `search` is
+    asked for, and the collapse to documents happens after. Read the caveat at
+    that collapse before quoting `recall_at_50` as recall over 50 documents.
     """
     cmap = canonical_map or {}
 
@@ -118,6 +136,39 @@ def evaluate_arm(
         # an arm returning 3 passages from one paper would look like 3 hits.
         # Canonicalising here also means a preprint and its published twin
         # collapse to one rank slot instead of occupying two.
+        #
+        # CAVEAT -- this is why "Recall@50" is a loose label. `search` was asked
+        # for k_recall=50 PASSAGES and the collapse happens here, afterwards, so
+        # `doc_ranking` is NOT 50 documents: it is however many distinct
+        # documents those 50 passages happened to cover. The denominator of the
+        # recall below is still |relevant| (see metrics.recall_at_k), but the
+        # candidate list it searches is shorter than 50 and a different length
+        # for every arm -- and the `k_recall` handed to recall_at_k is therefore
+        # never the binding cutoff, it slices a list already shorter than that.
+        #
+        # Distinct documents inside the top-50 passages, over the 171 test
+        # queries, counted from the cached runs under `data/`:
+        #
+        #     dense              mean 33.3   min 18   rrf_tuning_runs.json
+        #     fts, shipped       mean 37.4   min 21   fts_bench/optimised.json
+        #     fts, pre-pruning   mean 41.4   min 28   fts_bench/baseline.json
+        #
+        # So the arms are graded on UNEQUAL numbers of document slots -- `dense`
+        # on 11% fewer than the `fts` row published beside it -- inside a table
+        # whose entire purpose is arm-vs-arm comparison. The bias runs against
+        # whichever arm repeats documents most, which is `dense`, which is the
+        # arm that wins; the published conclusion is therefore conservative
+        # rather than inflated. It is still a mislabelled metric, and README.md
+        # and docs/ablation.md carry the same footnote.
+        #
+        # nDCG@10 does not have this problem. Dedup happens here, BEFORE the
+        # [:10] slice, and every arm's doc_ranking is comfortably longer than
+        # 10, so that column really is 10 distinct documents for every arm.
+        #
+        # Not fixed here, deliberately. The fix is to retrieve deeper and
+        # truncate to a fixed DOCUMENT count so every arm gets 50 slots, but
+        # that changes what the metric measures and invalidates every number
+        # published in this repo until a full re-run.
         seen: set[int] = set()
         doc_ranking: list[int] = []
         for h in resp.hits:

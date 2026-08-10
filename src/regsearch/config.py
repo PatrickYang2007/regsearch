@@ -127,7 +127,21 @@ class Settings(BaseSettings):
     # density. Pruning changes which passages are candidates AND their scores
     # (a dropped term stops contributing to any cover), so it is a real quality
     # trade and is measured as one, not asserted to be free.
-    # Swept in docs/agent-notes/fts-latency.md.
+    #
+    # `fts_df_max_frac` and `fts_min_terms` below were NOT swept, and this line
+    # used to claim otherwise by citing a write-up
+    # (docs/agent-notes/fts-latency.md) that was never written -- it is not on
+    # disk and not in git history. What was actually measured is pruning ON vs
+    # OFF at exactly these two values, over all 171 test queries: Recall@50
+    # 0.0462 -> 0.0501, nDCG@10 0.0146 -> 0.0172, p50 1531 ms -> 175 ms. Both
+    # runs are cached under data/fts_bench/ and can be rescored offline with
+    # `scripts/bench_fts.py --compare baseline optimised`; commit 479d1cf
+    # carries the same table. (The baseline also has fts_join_after_limit off,
+    # so the latency delta is the two changes together; the quality delta is
+    # pruning alone, because that join is result-identical.)
+    #
+    # So 0.05 and 3 are a first choice shown to beat not pruning at all. They
+    # are not a tuned optimum, and no other threshold has been tried.
     fts_prune_common_terms: bool = True
     fts_df_max_frac: float = 0.05
     # Backstop: never prune a query below this many positive terms. A query made

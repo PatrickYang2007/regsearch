@@ -97,14 +97,29 @@ every number in this repo is labelled weak supervision.
 _n=171 test queries. **Weak supervision:** labels are citation-derived — a query
 is a paper's title, its positives are the papers it cites — not human relevance
 judgements. The cross-encoder is fine-tuned on that same signal, so its row is
-scored against the family of labels it learned from. Latency measured on 8
-cores; the `fts` figure is the one reflecting a real code change (see below).
+scored against the family of labels it learned from. **Recall@50 is over 50
+passages, not 50 documents** — see the note below the table. Latency measured on
+8 cores; the `fts` figure is the one reflecting a real code change (see below).
 Reproduce with `regsearch eval --split test --origin citation`._
 
 **The full pipeline wins on recall and first-hit rank; plain `dense` still wins
 nDCG@10 and is ~58× faster.** Reranking pulls more correct documents into the
 top 50 and gets the first one higher, but has not overtaken dense on the graded
 top-10 measure.
+
+**What the Recall@50 column actually counts.** Each arm is asked for 50
+*passages*, and those passages are collapsed to their parent documents
+afterwards — so the column is recall among the distinct documents that fit
+inside a top-50 passage list, not recall over 50 documents. The arms therefore
+get unequal numbers of document slots: over these 171 queries `dense` averages
+33.3 distinct documents (min 18) and `fts` 37.4 (min 21), so `dense` is graded
+on ~11% fewer slots than the arm printed beside it. That bias runs against
+whichever arm repeats documents most, which is `dense` — the arm that wins
+nDCG@10 — so the comparison understates it rather than flattering it. nDCG@10 is
+unaffected: the collapse happens before the top 10 is taken, so that column is
+10 genuine documents for every arm. Making the label exact means retrieving
+deeper and truncating to a fixed document count, which moves every number in
+this table and has not been done.
 
 ### What the fine-tune bought
 
@@ -167,10 +182,12 @@ out not to be one.
 
 Metrics are computed at the document level (passages collapse to their parent
 document in first-appearance order), so an arm cannot win by returning several
-passages from one paper. Duplicate records — a preprint and its published
-version are separate Europe PMC rows — collapse to one canonical document, or
-retrieving the right paper under the wrong id would score as a miss. Latency is
-wall-clock per query at p50/p95 rather than a mean, which hides the tail.
+passages from one paper — that collapse is also why Recall@50 is not recall over
+50 documents, as noted under the table. Duplicate records — a preprint and its
+published version are separate Europe PMC rows — collapse to one canonical
+document, or retrieving the right paper under the wrong id would score as a
+miss. Latency is wall-clock per query at p50/p95 rather than a mean, which hides
+the tail.
 
 ## Setup
 
