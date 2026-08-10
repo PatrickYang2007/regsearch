@@ -55,55 +55,199 @@ class SearchResponse:
 # against an arm whose problem is measured in seconds).
 _PARSE_SQL = "SELECT websearch_to_tsquery('english', %(q)s)::text AS tq"
 
-# A plain single-lexeme operand, e.g. 'chromatin'. Anything else -- a phrase
-# ('enhanc' <-> 'promot'), a parenthesised group, a weighted or prefix operand
-# -- deliberately does not match; see _bare_lexeme.
+# A plain single-lexeme operand, e.g. 'chromatin'. Anything carrying a prefix
+# marker or weight letters ('gene':*, 'gene':AB) deliberately does not match:
+# those are not the lexeme key that lexeme_df is indexed on.
 _BARE_LEXEME_RE = re.compile(r"^'((?:[^']|'')*)'$")
 
+# A tsquery operand as Postgres renders it, with its optional prefix/weight
+# suffix, plus the tokens that can surround it.
+_OPERAND_RE = re.compile(r"'(?:[^']|'')*'(?::\*?[A-D]*)?")
+_PHRASE_OP_RE = re.compile(r"<(?:-|\d+)>")
 
-def _bare_lexeme(part: str) -> str | None:
-    """The single lexeme a tsquery operand names, or None if it names no single one.
 
-    Only a plain quoted operand has a document frequency that can be looked up
-    in `lexeme_df`. Phrase operands are left alone on purpose: a phrase is
-    already far more selective than either of its words, so pruning it on one
-    word's df would throw away the most discriminating thing in the query.
+class TsqueryParseError(ValueError):
+    """Raised when rendered tsquery text does not match the grammar below."""
+
+
+# The parse tree. Deliberately minimal: the rewrite only needs to know which
+# operands are positive, which are negated, and which conjunction each belongs
+# to.
+@dataclass
+class _Leaf:
+    """One operand, with the lexeme it can be pruned on -- or None if it has none.
+
+    A phrase group ('enhanc' <-> 'promot') is also a _Leaf, with lexeme None. It
+    is deliberately opaque: a phrase is far more selective than either of its
+    words, so dropping a word on that word's own df would throw away the most
+    discriminating thing in the query. Prefix and weighted operands ('gene':*)
+    are opaque for a different reason -- they are not the key lexeme_df is
+    indexed on, so there is no frequency to test.
+
+    lexeme=None therefore means "always kept", and such an operand still counts
+    towards the pruning backstop's survivor total.
     """
-    m = _BARE_LEXEME_RE.match(part.strip())
-    if m is None:
+
+    text: str
+    lexeme: str | None
+    kept: bool = True
+
+
+@dataclass
+class _Not:
+    child: _Node
+
+
+@dataclass
+class _And:
+    children: list[_Node]
+
+
+@dataclass
+class _Or:
+    children: list[_Node]
+
+
+_Node = _Leaf | _Not | _And | _Or
+
+
+def _tokenize(tq_text: str) -> list[str]:
+    tokens: list[str] = []
+    i, n = 0, len(tq_text)
+    while i < n:
+        if tq_text[i].isspace():
+            i += 1
+            continue
+        if tq_text[i] in "()&|!":
+            tokens.append(tq_text[i])
+            i += 1
+            continue
+        for pattern in (_PHRASE_OP_RE, _OPERAND_RE):
+            m = pattern.match(tq_text, i)
+            if m:
+                tokens.append(m.group(0))
+                i = m.end()
+                break
+        else:
+            raise TsqueryParseError(f"unexpected character at {i}: {tq_text[i]!r}")
+    return tokens
+
+
+def parse_tsquery(tq_text: str) -> _Node | None:
+    """Parse rendered tsquery text into a tree, or None if it is empty.
+
+    This replaces an earlier `split_tsquery` that assumed websearch_to_tsquery
+    "only ever emits a conjunction at the top level". It does not: the English
+    word "or" anywhere in the input produces a top-level `|`, which 6 of the 790
+    eval queries do. Because `&` binds tighter than `|`, splitting the rendered
+    text on ' & ' misreads such a query -- it hands back `'b' | 'c'` as if it
+    were one conjunct, which nothing downstream can read the lexemes out of.
+
+    Precedence, loosest to tightest: | then & then <-> / <N> then !.
+    """
+    tokens = _tokenize(tq_text)
+    if not tokens:
         return None
-    return m.group(1).replace("''", "'")
+    pos = 0
+
+    def peek() -> str | None:
+        return tokens[pos] if pos < len(tokens) else None
+
+    def take(expected: str) -> None:
+        nonlocal pos
+        if peek() != expected:
+            raise TsqueryParseError(f"expected {expected!r}, found {peek()!r}")
+        pos += 1
+
+    def or_expr() -> _Node:
+        parts = [and_expr()]
+        while peek() == "|":
+            take("|")
+            parts.append(and_expr())
+        return parts[0] if len(parts) == 1 else _Or(parts)
+
+    def and_expr() -> _Node:
+        parts = [phrase_expr()]
+        while peek() == "&":
+            take("&")
+            parts.append(phrase_expr())
+        return parts[0] if len(parts) == 1 else _And(parts)
+
+    def phrase_expr() -> _Node:
+        node = not_expr()
+        if peek() is None or not _PHRASE_OP_RE.fullmatch(peek() or ""):
+            return node
+        chunks = [_render(node, top=False)]
+        while peek() is not None and _PHRASE_OP_RE.fullmatch(peek() or ""):
+            op = tokens[pos]
+            pos_advance()
+            chunks.append(op)
+            chunks.append(_render(not_expr(), top=False))
+        # Collapsed to one opaque operand: see _Leaf on why a phrase is never
+        # pruned on one of its own words.
+        return _Leaf(" ".join(chunks), None)
+
+    def pos_advance() -> None:
+        nonlocal pos
+        pos += 1
+
+    def not_expr() -> _Node:
+        if peek() == "!":
+            take("!")
+            return _Not(not_expr())
+        return primary()
+
+    def primary() -> _Node:
+        tok = peek()
+        if tok == "(":
+            take("(")
+            inner = or_expr()
+            take(")")
+            return inner
+        if tok is None or tok in "&|)":
+            raise TsqueryParseError(f"expected an operand, found {tok!r}")
+        pos_advance()
+        m = _BARE_LEXEME_RE.match(tok)
+        return _Leaf(tok, m.group(1).replace("''", "'") if m else None)
+
+    tree = or_expr()
+    if pos != len(tokens):
+        raise TsqueryParseError(f"trailing tokens from {pos}: {tokens[pos:]!r}")
+    return tree
 
 
-def split_tsquery(tq_text: str) -> tuple[list[str], list[str]]:
-    """Split a top-level-AND tsquery into its (positive, negated) operands.
+def _positive_operands(node: _Node, negated: bool = False) -> list[_Leaf]:
+    """Every non-negated operand in the tree, in left-to-right order.
 
-    websearch_to_tsquery only ever emits a conjunction at the top level, so
-    splitting the rendered text on ' & ' is a complete parse of that level.
-    Phrase operands survive intact because ' <-> ' is a different separator.
+    Operands under a negation are skipped: pruning an exclusion would not make
+    the query cheaper, it would make it match MORE.
 
-    An empty tsquery (whitespace input, or input that is all stop words) yields
-    two empty lists, which callers must treat as "matches nothing" -- Postgres
-    cannot even cast '()' to tsquery.
+    Opaque operands (lexeme None) are included even though they can never be
+    dropped, because they still count towards the backstop's survivor total --
+    which is what the flat-list implementation did, and changing it would move
+    107 of the 790 eval queries.
     """
-    if not tq_text.strip():
-        return [], []
-    pos: list[str] = []
-    neg: list[str] = []
-    for part in tq_text.split(" & "):
-        (neg if part.startswith("!") else pos).append(part)
-    return pos, neg
+    if isinstance(node, _Leaf):
+        return [] if negated else [node]
+    if isinstance(node, _Not):
+        return _positive_operands(node.child, negated=True)
+    out: list[_Leaf] = []
+    for child in node.children:
+        out.extend(_positive_operands(child, negated))
+    return out
 
 
 def prune_common_terms(
-    positives: list[str],
+    operands: list[_Leaf],
     common: Mapping[str, int],
     min_terms: int,
-) -> tuple[list[str], list[str]]:
-    """Split positive operands into (kept, dropped) on corpus document frequency.
+) -> None:
+    """Mark corpus-common operands not-kept, in place, on document frequency.
 
     `common` is {lexeme: ndoc} for lexemes ALREADY known to exceed the
     threshold, so membership is the entire test and an absent lexeme is kept.
+    An operand with no lexeme of its own (a phrase, a prefix or weighted
+    operand) is never droppable and is always a survivor.
 
     The backstop matters more than the rule. A query whose every term is
     corpus-common ("gene expression analysis") would prune to nothing and return
@@ -112,44 +256,75 @@ def prune_common_terms(
     until they do -- so such a query still runs on the most selective evidence
     it has, even when that evidence is weak.
 
+    The backstop counts across the whole query, which for every query without a
+    top-level `|` is the same set the flat-list implementation counted.
     Order is preserved and ties break on original position, so the same query
     always produces the same tsquery and two measurements are comparable.
     """
-    keep_idx = [i for i, p in enumerate(positives) if _bare_lexeme(p) not in common]
-    drop_idx = [i for i, p in enumerate(positives) if _bare_lexeme(p) in common]
+    droppable = [
+        i
+        for i, op in enumerate(operands)
+        if op.lexeme is not None and op.lexeme in common
+    ]
+    n_survivors = len(operands) - len(droppable)
 
-    if len(keep_idx) < min_terms and drop_idx:
+    if n_survivors < min_terms and droppable:
         # Stable sort over an already-ascending index list, so equal df keeps
         # the earlier term.
-        drop_idx.sort(key=lambda i: common.get(_bare_lexeme(positives[i]) or "", 0))
-        n_restore = min(min_terms - len(keep_idx), len(drop_idx))
-        keep_idx.extend(drop_idx[:n_restore])
-        drop_idx = drop_idx[n_restore:]
+        droppable.sort(key=lambda i: common.get(operands[i].lexeme or "", 0))
+        n_restore = min(min_terms - n_survivors, len(droppable))
+        droppable = droppable[n_restore:]
 
-    return (
-        [positives[i] for i in sorted(keep_idx)],
-        [positives[i] for i in sorted(drop_idx)],
-    )
+    for i in droppable:
+        operands[i].kept = False
 
 
-def assemble_tsquery(positives: list[str], negatives: list[str]) -> str:
-    """Rebuild a tsquery with the positives OR'd and the negations still AND'd.
+def _render(node: _Node, top: bool = True) -> str:
+    """Render a tree back to tsquery text, ORing each conjunction's positives.
 
-    Negation must stay conjunctive. Folding !x into the OR would match every
-    passage that merely lacks x, which is nearly the whole corpus -- an
-    exclusion would turn into the broadest possible inclusion.
+    The OR rewrite is applied per conjunction, in place, so a negation stays
+    scoped to the branch it was parsed into. The earlier implementation hoisted
+    every negation to the top level, which changed what the query meant:
 
-    Returns '' when there is nothing positive to match, including the
-    negation-only case ("-cancer"): a query that only says what it does not want
-    has no candidate set, and Postgres rejects an empty parenthesised tsquery
-    outright.
+        chromatin or cancer -gene
+          parses to  'chromatin' | ('cancer' & !'gene')
+          hoisted to ('chromatin' | 'cancer') & !'gene'
+
+    -- silently dropping passages that contain "chromatin" and "gene", which the
+    user never excluded. Not reachable from the citation eval set (no query
+    there produces a `!`), but reachable from `regsearch search` and /search.
+
+    Returns '' where there is nothing positive left to match: a pruned-out
+    branch, or a negation-only query ("-cancer"), which has no candidate set at
+    all and which Postgres would reject as an empty parenthesised tsquery.
     """
+    if isinstance(node, _Leaf):
+        return node.text if node.kept else ""
+    if isinstance(node, _Not):
+        inner = _render(node.child, top=False)
+        return f"!{inner}" if inner else ""
+    if isinstance(node, _Or):
+        parts = [p for p in (_render(c, top=False) for c in node.children) if p]
+        return " | ".join(parts)
+
+    positives, negatives = [], []
+    for child in node.children:
+        rendered = _render(child, top=False)
+        if not rendered:
+            continue
+        (negatives if isinstance(child, _Not) else positives).append(rendered)
     if not positives:
+        # Every positive was pruned or is empty. An exclusion with nothing left
+        # to exclude from matches nothing, so drop the branch entirely.
         return ""
-    q = "(" + " | ".join(positives) + ")"
+    out = "(" + " | ".join(positives) + ")"
     if negatives:
-        q += " & " + " & ".join(negatives)
-    return q
+        out += " & " + " & ".join(negatives)
+        # A conjunction nested inside a disjunction must keep its own bracket:
+        # `|` is looser than `&`, so `a | (b) & !c` would re-associate.
+        if not top:
+            out = f"({out})"
+    return out
 
 
 def build_fts_tsquery(
@@ -165,13 +340,30 @@ def build_fts_tsquery(
 
     Pure and database-free so it can be tested directly; the caller supplies
     `common` from the materialised lexeme_df table.
+
+    A parse failure degrades to the untouched conjunctive parse rather than
+    raising. That is slower and narrower, but it still answers the query, which
+    is the right trade for input that reaches this from a public endpoint.
     """
     if not or_semantics:
         return parsed
-    positives, negatives = split_tsquery(parsed)
+    try:
+        tree = parse_tsquery(parsed)
+    except TsqueryParseError:
+        log.warning("could not parse tsquery, running it unrewritten: %r", parsed)
+        return parsed
+    if tree is None:
+        return ""
+    if isinstance(tree, (_Leaf, _Not)):
+        # A root that is a single operand is a conjunction of one. Normalising
+        # it here keeps the rendered text byte-identical to the pre-parser
+        # implementation for these shapes -- "('chromatin')", and '' for a
+        # negation-only query -- so the only queries whose tsquery text moves
+        # are the ones the OR/negation bugs actually affected.
+        tree = _And([tree])
     if common:
-        positives, _dropped = prune_common_terms(positives, common, min_terms)
-    return assemble_tsquery(positives, negatives)
+        prune_common_terms(_positive_operands(tree), common, min_terms)
+    return _render(tree)
 
 
 # Scoring every OR match is the arm's whole cost: ts_rank_cd has to decode
