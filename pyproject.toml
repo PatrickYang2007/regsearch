@@ -37,6 +37,17 @@ dev = [
 [project.scripts]
 regsearch = "regsearch.cli:app"
 
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu126" }]
+
+# This cluster's GPU nodes run driver 570.211.01 (CUDA 12.8). The default PyPI
+# wheel for torch >=2.13 is built against CUDA 13.0 and needs a 580.x driver, so
+# it silently falls back to CPU here. Pin the CUDA build, not the version.
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

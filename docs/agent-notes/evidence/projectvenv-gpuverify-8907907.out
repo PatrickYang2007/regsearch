@@ -1,0 +1,12 @@
+r102u10n01.mccleary.ycrc.yale.edu
+name, driver_version
+NVIDIA RTX A5000, 570.211.01
+torch: 2.13.0+cu126
+compiled cuda: 12.6
+torch.cuda.is_available() -> True
+device count: 1
+device name: NVIDIA RTX A5000
+capability: (8, 6)
+matmul OK, 10x4096^3 in 0.151s, checksum 362115.1562
+CrossEncoder param device: cuda:0
+scores: [-2.2235794  8.189409 ]

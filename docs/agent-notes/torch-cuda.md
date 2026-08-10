@@ -1,16 +1,30 @@
 # torch / CUDA driver mismatch on mccleary
 
-Status: **diagnosed and fixed, fix verified end-to-end on a GPU node.**
-Date: 2026-08-08. Cluster: Yale mccleary.
+Status: **APPLIED and verified in the project venv.** 2026-08-10.
+Diagnosed 2026-08-08. Cluster: Yale mccleary.
 
 The deliverable in one line:
 
 ```
-torch 2.13.0+cu126 on r107u12n01 (partition gpu, NVIDIA RTX A5000)
+torch 2.13.0+cu126 on r102u10n01 (partition gpu_devel, NVIDIA RTX A5000)
 torch.cuda.is_available() -> True
 ```
 
-Evidence: `.uv_cache/torchprobe/logs/verify-8867925.out`.
+Evidence, both copied into `docs/agent-notes/evidence/`:
+
+| run | venv | log |
+|---|---|---|
+| 8867925 | throwaway probe | `torchprobe-verify-8867925.out` |
+| **8907907** | **the project `.venv`** | `projectvenv-gpuverify-8907907.out` |
+
+The 2026-08-10 run is the one that matters: it exercises the venv the jobs
+actually use, after `uv lock && uv sync`. It confirms `is_available() -> True`,
+a real 4096^3 matmul, and the fine-tuned CrossEncoder loading on `cuda:0`.
+
+**One assertion in that job failed, and it was the test that was wrong, not the
+fix** -- the probe asserted that an on-topic passage outscores an off-topic one,
+which this checkpoint does not do. See `reranker-ood.md`; it is a property of
+the fine-tune, not of the CUDA build. Every GPU check itself passed.
 
 ---
 
@@ -103,7 +117,7 @@ cu128 would match the driver's 12.8 exactly, but its newest wheel is torch
 guaranteed to run on the 570.x driver by CUDA minor-version compatibility.
 This was not taken on faith; it was measured (section 3).
 
-### pyproject.toml change (NOT APPLIED -- for you to apply)
+### pyproject.toml change (APPLIED 2026-08-10)
 
 Keep `torch>=2.3` in the `embed` extra exactly as it is. Append two blocks:
 
@@ -217,15 +231,14 @@ would not catch a wheel that loads but has no usable kernels for sm_86:
 - Nothing needs to be escalated to YCRC. The driver is current and healthy; this
   was purely a client-side wheel selection problem.
 
-### Cleanup
+### Cleanup (done)
 
-The throwaway venv is ~6.2 GB against the group quota. Once you have applied and
-sync'd the fix, delete it:
+The throwaway venv and its uv cache (6.2 GB against the group quota) were
+deleted on 2026-08-10, after the fix was applied and re-verified in the project
+venv. `.uv_cache/torchprobe/` now holds only the probe scripts and its Slurm
+logs, ~3.5 KB.
 
-```bash
-rm -rf /vast/palmer/pi/garg/Patrick/regsearch/.uv_cache/torchprobe
-```
-
-Keep it until then if you want to reproduce the check yourself -- rebuilding it
-means re-downloading torch. The Slurm logs under `.uv_cache/torchprobe/logs/`
-are the evidence for everything above.
+The logs themselves were copied into `docs/agent-notes/evidence/` first,
+because `.uv_cache/` is not tracked by git -- leaving the only evidence for a
+published claim in an untracked scratch directory is how a claim quietly becomes
+unverifiable.

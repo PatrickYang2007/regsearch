@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=regsearch-eval
-#SBATCH --partition=day
-#SBATCH --cpus-per-task=8
+#SBATCH --partition=gpu
+#SBATCH --gpus=1
+#SBATCH --cpus-per-task=2
 #SBATCH --mem=16G
 #SBATCH --time=01:00:00
 #SBATCH --output=slurm/logs/eval-%j.out
@@ -19,20 +20,24 @@
 # candidates for each of the 171 test queries, i.e. ~17,100 pairs. That is
 # torch matmul work and it is the only part of the eval that scales with cores.
 #
-# NO GPU ON PURPOSE
-# -----------------
-# Do NOT add `#SBATCH --gpus=1` here. The venv has torch 2.13.0+cu130 and this
-# cluster's driver reports 12080, which torch rejects at CUDA init:
+# GPU, AS OF THE cu126 FIX
+# ------------------------
+# This was deliberately a CPU job for as long as the venv carried a cu130 torch
+# that this cluster's 570.x driver (CUDA 12.8) rejects at init -- `is_available()`
+# returned False, so a GPU allocation would have sat idle while the cross-encoder
+# ran on CPU anyway. pyproject now pins the cu126 build of the same torch
+# version, verified on a real A5000 (job 8907907, evidence in
+# docs/agent-notes/evidence/): `torch.cuda.is_available() -> True`, and the
+# fine-tuned CrossEncoder loads on cuda:0.
 #
-#   UserWarning: CUDA initialization: The NVIDIA driver on your system is too
-#   old (found version 12080)
-#   torch.cuda.is_available() -> False
+# rerank.py:53 picks its device with exactly that call, so this arm now runs on
+# the GPU. cpus-per-task drops from 8 to 2: the cross-encoder forward passes are
+# no longer the CPU's problem.
 #
-# rerank.py picks its device with exactly that call, so on a GPU node it would
-# still build the CrossEncoder on CPU -- the allocation would sit idle while
-# you queue behind every real GPU job. Requesting CPUs is both faster to
-# schedule and not a lie about what the job uses. (If the torch/driver pair is
-# ever fixed, this becomes a GPU job and the cpus-per-task drops.)
+# LATENCY NUMBERS ARE NOT COMPARABLE ACROSS THIS CHANGE. The p50 columns in
+# docs/ablation.md were measured on 8 CPU cores; a GPU run will beat them for
+# reasons that have nothing to do with retrieval quality. Recall/nDCG/MRR are
+# device-independent and remain comparable.
 #
 # HOW THIS JOB REACHES POSTGRES
 # -----------------------------

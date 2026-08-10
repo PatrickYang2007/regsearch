@@ -1,0 +1,28 @@
+HOST=r102u10n01.mccleary.ycrc.yale.edu
+=== nvidia-smi ===
+Sat Aug  8 22:21:10 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.211.01             Driver Version: 570.211.01     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A5000               On  |   00000000:31:00.0 Off |                  Off |
+| 30%   25C    P8             17W /  230W |       1MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+=== nvidia-smi query ===
+name, driver_version, compute_cap, memory.total [MiB]
+NVIDIA RTX A5000, 570.211.01, 8.6, 24564 MiB
+=== /proc/driver/nvidia/version ===
+NVRM version: NVIDIA UNIX x86_64 Kernel Module  570.211.01  Tue Nov 25 16:36:36 UTC 2025
+GCC version:  gcc version 8.5.0 20210514 (Red Hat 8.5.0-28) (GCC) 

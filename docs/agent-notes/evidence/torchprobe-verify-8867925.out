@@ -1,0 +1,22 @@
++ hostname
+r107u12n01.mccleary.ycrc.yale.edu
++ nvidia-smi --query-gpu=name,driver_version --format=csv
+name, driver_version
+NVIDIA RTX A5000, 570.211.01
++ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
++ HF_HUB_OFFLINE=1
++ TRANSFORMERS_OFFLINE=1
++ /vast/palmer/pi/garg/Patrick/regsearch/.uv_cache/torchprobe/venv/bin/python /vast/palmer/pi/garg/Patrick/regsearch/.uv_cache/torchprobe/verify.py
+torch: 2.13.0+cu126
+compiled cuda: 12.6
+torch.cuda.is_available() -> True
+device count: 1
+device name: NVIDIA RTX A5000
+capability: (8, 6)
+matmul OK, 10x4096^3 in 0.149s, checksum 260041.6250
+Loading weights:   0%|          | 0/105 [00:00<?, ?it/s]Loading weights: 100%|██████████| 105/105 [00:00<00:00, 1667.15it/s]
+CrossEncoder param device: cuda:0
+scores: [1.0562892 6.528191 ]
+ALL GPU CHECKS PASSED
++ echo EXIT=0
+EXIT=0
