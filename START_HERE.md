@@ -7,7 +7,7 @@ project and want to know where it stands and what to do next.
 - [NOTES.md](NOTES.md) = the detailed dev log (dense; written for future-you mid-task).
 - [README.md](README.md) = the public-facing description for people who find the repo.
 
-Last updated: **2026-08-08**, end of session 4.
+Last updated: **2026-08-10**, end of session 5.
 
 ---
 
@@ -48,11 +48,15 @@ serve them over HTTP, and produce the comparison table.
 | Training labels (from citations) | 8,075 pairs harvested |
 | Eval set | 790 queries (171 test / 619 train) |
 | Ablation table | current → [docs/ablation.md](docs/ablation.md), all four arms |
-| Unit tests | 95, passing |
+| Unit tests | 133, passing |
 | Web API (FastAPI) | **works**, wired to `regsearch serve` |
 | **Trained reranker** | **done** — fine-tuned, +41% MRR over off-the-shelf |
 | Lexical arm latency | **fixed** — 8.7× faster and better quality |
-| GPU actually usable | **no** — wrong torch wheel; fix verified, not applied |
+| GPU actually usable | **yes, as of session 5** — cu126 pin, `device: cuda` in training_meta |
+| Reranker retrained on current pool | **done** — no longer stale by its own fingerprint |
+| tsquery OR/negation bugs | **fixed** — real parser, 26 tests |
+| Recall@50 mislabelling | **documented** — metric unchanged, caveat now stated everywhere |
+| RRF sweep | **re-run** post-pruning; now agrees with the shipped `hybrid` row |
 | Human-judged eval set | **not done — this is yours, see [JUDGING.md](JUDGING.md)** |
 
 **Postgres may or may not be running** — it dies with whatever Slurm allocation
@@ -69,21 +73,31 @@ If `reranker_trained` is present, an A/B comparison was interrupted before
 restoring the checkpoint, and `hybrid_rerank` is silently serving the
 off-the-shelf model. Fix with `mv data/models/reranker_trained data/models/reranker`.
 
+`data/models/reranker.backup-2026-08-10/` is the *previous* checkpoint, kept
+when session 5 retrained. It is inert — nothing loads it — and it is safe to
+delete once you trust the current one. It is deliberately not named
+`reranker_trained`, to stay clear of the trap above.
+
 ---
 
 ## 3. The results, and what they mean
 
 | arm | Recall@50 | nDCG@10 | MRR | p50 ms |
 |---|---:|---:|---:|---:|
-| `fts` | 0.0501 | 0.0172 | 0.0448 | 174.0 |
-| `dense` | 0.1236 | **0.0536** | 0.1100 | **20.5** |
-| `hybrid` | 0.1284 | 0.0500 | 0.1010 | 187.6 |
-| `hybrid_rerank` | **0.1388** | 0.0522 | **0.1287** | 1185.2 |
+| `fts` | 0.0501 | 0.0172 | 0.0448 | 152.6 |
+| `dense` | 0.1236 | **0.0536** | 0.1100 | **12.3** |
+| `hybrid` | 0.1284 | 0.0500 | 0.1010 | 160.6 |
+| `hybrid_rerank` | **0.1388** | 0.0523 | **0.1294** | 254.4 |
 
-**Plain reading: the full pipeline now wins on finding things, and plain `dense`
-still wins on ordering the top handful — while being ~58x faster.** Reranking
+**Plain reading: the full pipeline wins on finding things, and plain `dense`
+still wins on ordering the top handful — while being ~21x faster.** Reranking
 pulls more correct papers into the top 50 and gets the first correct one higher,
 but hasn't overtaken dense on the graded top-10 measure.
+
+Read `Recall@50` with the caveat in [docs/ablation.md](docs/ablation.md): it is
+recall among the distinct documents that fit inside 50 *passages*, and the arms
+get unequal document slots (`dense` 33.3, `fts` 37.4). The bias runs against
+`dense`, so its win understates rather than flatters.
 
 In session 3 both fused arms *lost* to plain dense. Two changes flipped that:
 the reranker got fine-tuned, and the keyword arm stopped being nearly useless.
@@ -103,11 +117,24 @@ identical — same queries, same fusion weights, same keyword config:
 That is the number worth quoting, because it is the only one that isolates the
 fine-tune from everything bundled with it.
 
-**Known limitation, state it if asked:** those training negatives were mined
-*before* the keyword arm was optimised, and that change turned over ~80% of what
-the keyword arm returns. So the model is trained against a candidate pool it no
-longer sees. The comparison above is still valid — both rows ran under today's
-configuration — but retraining would likely do better.
+**That limitation is now closed, and the answer was "it barely mattered".** Those
+negatives had been mined *before* the keyword arm was optimised, a change that
+turned over ~80% of what that arm returns, so the checkpoint was stale by its own
+recorded fingerprint. Session 5 retrained on the current pool. Recall@50 did not
+move at all (0.1388), nDCG@10 went +0.0001 and MRR +0.0007. Worth fixing for
+reproducibility — the fingerprint now matches the retriever — but it was not
+costing measurable accuracy, and saying so is more useful than implying a gain
+nobody measured.
+
+**A sharper limitation, found in session 5:** the fine-tuned model is a *pool
+discriminator*, not a relevance model. Ask it to score an obviously off-topic
+passage and it will happily rank a cake recipe above a passage restating the
+query, because every negative it ever trained on was a hard negative mined from
+the top-50 and was therefore already on-topic. This does not touch any number in
+the table — `hybrid_rerank` only ever reranks the fused top-100, where the model
+is in-distribution — but it means the scores must never be thresholded, which
+directly constrains the proposed `/answer` endpoint. Full write-up and evidence
+in [docs/agent-notes/reranker-ood.md](docs/agent-notes/reranker-ood.md).
 
 ### Two things you must not claim about these numbers
 
@@ -121,8 +148,10 @@ configuration — but retraining would likely do better.
    this reason.
 
 Also worth knowing: latency columns are **not** comparable across sessions —
-this table ran on 8 cores, earlier ones on 1. The `fts` speedup is the one
-measured on the same node with the same harness, so it is the real one.
+this table ran on a GPU node with 2 CPUs, the previous one on 8 CPUs, the one
+before that on 1. `hybrid_rerank` p50 fell 1185 → 254 ms purely because the
+cross-encoder moved to the GPU. The `fts` speedup is the one measured on the
+same node with the same harness, so it is the real one.
 
 ## 4. Getting it running
 
@@ -204,101 +233,75 @@ node.
 
 ## 5. What to do next — pick up here
 
-Ordered. The first two are small and mechanical; #3 is yours and gates
-everything else.
+**Everything mechanical on the old list is done.** Sessions 5 closed items 1, 2,
+4 and 5 below. What is left is the one thing that needs a human.
 
-### 1. Make the GPU actually usable — *10 minutes, blocks all future training*
-
-Last session's fine-tune allocated an A5000 and **trained on CPU**. The wheel is
-wrong: `torch 2.13.0+cu130` needs a CUDA 13 driver, the cluster has 12.8. This
-is not a cluster problem — the driver is current — it is a packaging default
-(PyPI ships the cu130 build for linux, and `pyproject` pins only `torch>=2.3`).
-
-The fix is verified on a real GPU node (`torch.cuda.is_available() -> True`,
-same torch version, no other dependency moves). Append to `pyproject.toml`:
-
-```toml
-[tool.uv.sources]
-torch = [{ index = "pytorch-cu126" }]
-
-[[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
-explicit = true
-```
-
-Then `uv lock && uv sync --extra embed`. `explicit = true` is load-bearing —
-without it, everything else would also resolve from the PyTorch index.
-
-Full evidence in `docs/agent-notes/torch-cuda.md`. **Afterwards, delete the
-6.3 GB probe venv:** `rm -rf .uv_cache/torchprobe`.
-
-### 2. Retrain the reranker on the current candidate pool
-
-The shipped checkpoint's negatives were mined *before* lexical term pruning, and
-pruning turned over ~80% of what the keyword arm returns. The model is trained
-against a pool it no longer sees. It still beat the off-the-shelf baseline by
-41% MRR, so this is an improvement opportunity, not a defect.
-
-With #1 done this is fast on a real GPU:
-
-```bash
-scripts/pg_start.sh                       # must be up BEFORE sbatch
-sbatch slurm/finetune_rerank.sbatch
-# then re-measure:
-sbatch slurm/eval.sbatch
-```
-
-`_retrieval_fingerprint()` now records the pruning settings, so the new
-checkpoint's `training_meta.json` will show whether it matches the retriever.
-
-### 3. Hand-judge the pool — *only you can do this*
+### 1. Hand-judge the pool — *only you can do this, and it now gates everything*
 
 `data/judging_pool.csv`, 704 candidates over 40 realistic queries, ~2 hours.
 Instructions in **[JUDGING.md](JUDGING.md)**.
 
 Until this exists, **every number in this repo is weak supervision** — the
 reranker is graded against the same signal family it trained on. This is the
-single thing standing between the project and a table that needs no asterisk.
+single thing standing between the project and a table that needs no asterisk,
+and it is now the only roadmap item that changes what the project *is* rather
+than how tidy it is.
 
 ```bash
 regsearch import-qrels data/judging_pool.csv
 regsearch eval --origin manual --out docs/ablation_manual.md
 ```
 
-### 4. Fix what the code audit found (`docs/agent-notes/audit-code.md`)
+One thing to know before you start: `build_pairs` now filters `relevance > 0`,
+so a document you judge **irrelevant** is correctly excluded from training
+positives. Before session 5 it would have been trained as a label-1.0 positive
+*and* blocked from the negative pool. Judge 0s freely; they are handled.
 
-None of these invalidate a published number; all are real:
+### 2. Decide about patents and theses
 
-- **"Recall@50" is recall over ~35 documents, and arms get unequal slots.**
-  `search(k=50)` returns 50 *passages*, collapsed to documents afterward —
-  `dense` averages 33.3 distinct docs, `fts` 41.4. Document it in the harness
-  and README, or retrieve deeper and truncate to a fixed document count.
-- **`split_tsquery` assumes a top-level AND**, but the word "or" makes
-  Postgres emit a `|`. 6 of 790 eval queries hit it; pruning silently skips
-  the OR branch.
-- **`assemble_tsquery` hoists negations out of OR branches** —
-  `chromatin or cancer -gene` excludes `gene` from both sides. Not reachable
-  from the eval set, but reachable from `/search` free-form input.
-- **The tsquery builders and `rrf_fuse` have zero tests.** 95 tests pass and
-  none touch that path — which is how the above survived.
-
-### 5. Re-run the RRF sweep
-
-`scripts/tune_rrf.py`'s table predates term pruning, so it describes fusing a
-weaker keyword arm than the one that ships. Its `w_fts=0.5` row disagrees with
-the current `hybrid` row for the same setting. Cheap — it caches retrieval and
-re-fuses offline.
+49 patents and 48 theses are in the corpus because Europe PMC indexes them.
+Nobody decided that. It is a one-line call, and it is worth making before you
+quote a headline number in an interview — a free-form `/search` for
+"chromatin or cancer" currently returns a patent as its top hit.
 
 ### Lower priority
 
 - **Real BM25** as a genuine fifth arm (`fts` is `ts_rank_cd`, and always will
   be — this would be a new arm, not a relabel).
-- **A `/answer` endpoint**: retrieve, then have Claude write a cited answer.
-  This is the only genuinely LLM-shaped piece; `anthropic` is already in the
-  `serve` extra. At demo volume it costs single-digit dollars.
-- **Patents and theses** (49 + 48 documents) are in the corpus because Europe
-  PMC indexes them. Nobody decided that. Worth an explicit call.
+- **An `/answer` endpoint**: retrieve, then have Claude write a cited answer.
+  `anthropic` is already in the `serve` extra. **Read
+  [docs/agent-notes/reranker-ood.md](docs/agent-notes/reranker-ood.md) first** —
+  the obvious design ("only cite passages the reranker scores above X") is
+  exactly what this reranker cannot support.
+- **Quantify the reranker's out-of-distribution behaviour properly.** The
+  session-5 evidence is 1 query and 8 pairs: enough to establish direction, not
+  magnitude.
+- **Consider renaming the `Recall@50` column** to something that says "passages"
+  — the caveat is now documented everywhere, but a rename touching every
+  published table should be one deliberate pass, ideally decided together with
+  whether to switch to a fixed document count instead.
+
+### Done in session 5, for the record
+
+1. **GPU usable.** `pyproject` pins the cu126 torch build; verified in the
+   project venv on a real A5000, and `training_meta.json` now records
+   `"device": "cuda"`. The 6.2 GB probe venv is deleted, its logs preserved in
+   `docs/agent-notes/evidence/`. `slurm/eval.sbatch` is a GPU job: the full
+   ablation went from ~15 min to **2m29s**, the fine-tune from 17 min to
+   **2m52s**.
+2. **Reranker retrained** on the current candidate pool. Quality barely moved
+   (§3) — the honest result, not the hoped-for one.
+3. **tsquery parser** replaces the `' & '` string split, fixing pruning inside
+   OR branches and negation scope. 6 of 790 queries change, exactly the 6 with a
+   top-level `|`.
+4. **Recall@50 documented** for what it measures; `config.py`'s dangling
+   citation to a sweep that never happened is corrected.
+5. **RRF sweep re-run** post-pruning. It now agrees with the shipped `hybrid`
+   row, which the old sweep contradicted. `w_fts=0.5` still stands: fusion loses
+   to `dense` on nDCG@10 at every weight, but `hybrid` exists to hand the
+   reranker a deeper pool, and 0.5 maximises Recall@50 — which is the pool the
+   reranker then reorders.
+6. **Mining fixes** so hand-judged 0s cannot poison training (see item 1).
 
 ## 6. Things that will trip you up
 
@@ -315,8 +318,9 @@ local to one machine and can't be used across nodes even on shared storage. That
 misunderstanding cost two failed jobs in session 1. `slurm/embed.sbatch` used to
 carry a comment claiming the opposite; it was corrected in session 3.)
 
-**`uv sync` will remove pytest.** It was installed ad hoc. Use
-`uv sync --extra dev` to keep the 95 tests runnable.
+**`uv sync` will remove pytest** *and* the serve extra, and it will drop you back
+to whatever `uv.lock` says. Sync with everything you want to keep:
+`uv sync --extra embed --extra dev --extra serve`. The 133 tests need `dev`.
 
 **A checkpoint appearing in `data/models/reranker/` silently changes what
 `hybrid_rerank` means.** `rerank.py` prefers that directory and falls back to the
@@ -324,9 +328,17 @@ public model only when it's absent — nothing announces the switch. So an A/B
 comparison that moves the checkpoint aside must move it back, and a smoke-test
 run must never write there. Check §2 before trusting any rerank number.
 
-**Your GPU jobs may not be using the GPU.** `torch.cuda.is_available()` is
-currently `False` — wrong wheel, see §5.1. Jobs still complete; they just run on
-CPU and take far longer. `training_meta.json` records `"device"`, so check it.
+**Check `"device"` in `training_meta.json` anyway.** The cu126 pin fixed
+`torch.cuda.is_available()`, and it is `True` as of session 5 — but the failure
+mode it fixed was *silent*: torch swallowed the CUDA init error as a warning and
+trained on CPU while holding an idle A5000. If a `uv sync` ever resolves torch
+from PyPI's default index again, that returns without announcing itself. The
+metadata field is the cheap check.
+
+**The reranker's scores are not calibrated relevance.** It ranks well inside the
+candidate pool and nonsensically outside it — see §3 and
+[docs/agent-notes/reranker-ood.md](docs/agent-notes/reranker-ood.md). Never
+threshold on them.
 
 **The corpus contains 49 patents and 48 theses.** Europe PMC indexes them, so
 they came along with everything else. Not necessarily wrong, but nobody ever
@@ -337,7 +349,23 @@ decided to include them. Worth an explicit call before quoting a headline number
 ## 7. Current git state
 
 Committed and pushed to `github.com/PatrickYang2007/regsearch` (public).
-Session 4 added, newest first:
+Session 5 added, newest first:
+
+```
+Refresh the ablation on GPU with the retrained reranker
+Record that the fine-tuned reranker is a pool discriminator
+Say what "Recall@50" actually counts
+Stop a hand-judged irrelevant document training as a positive
+Parse the tsquery instead of splitting it on ' & '
+Pin the cu126 torch build so the GPU is actually used
+```
+
+The reranker commit is the one to re-read before an interview: it is the only
+finding here that changes how the headline result should be *described*, and it
+came out of a verification job whose assertion failed for a reason that had
+nothing to do with what it was verifying.
+
+Session 4, for context:
 
 ```
 Bring README in line with what the code actually does
