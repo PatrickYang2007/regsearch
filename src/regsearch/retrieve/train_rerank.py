@@ -19,8 +19,9 @@ Pipeline
    harness, so training and evaluation read labels through the same code path.
 2. For each query, run the real `hybrid` retrieval arm to get the candidate
    pool the reranker will actually face at inference.
-3. Positives from qrels; negatives from that pool, minus the qrels, minus
-   canonical twins of the qrels, minus the query's own citing paper.
+3. Positives from the qrels judged relevant (relevance > 0); negatives from
+   that pool, minus the qrels, minus canonical twins of the qrels, minus the
+   query's own citing paper.
 4. Train a single-logit CrossEncoder with BCE and save to `data/models/reranker`.
 
 The pure selection logic (steps 1 and 3) is deliberately separated from the
@@ -79,7 +80,12 @@ class TrainingPair:
 class MiningStats:
     queries_seen: int = 0
     queries_used: int = 0
+    # A query can drop out for two unrelated reasons and they diagnose different
+    # problems: no negatives means the candidate pool collapsed onto the qrels,
+    # no positives means the cited papers are not in this corpus (or have no
+    # passages). Counting both as "without negatives" hides the second entirely.
     queries_without_negatives: int = 0
+    queries_without_positives: int = 0
     positives: int = 0
     negatives: int = 0
     twins_blocked: int = 0
@@ -120,6 +126,7 @@ def select_hard_negatives(
     exclude_docs: Iterable[int] = (),
     skip_top_n: int = 0,
     stats: MiningStats | None = None,
+    qrel_doc_ids: Iterable[int] | None = None,
 ) -> list[Candidate]:
     """Pick hard negatives out of a real retrieval run.
 
@@ -162,8 +169,20 @@ def select_hard_negatives(
     standard denoising trick. Default 0: it trades hardness for cleanliness and
     which way that trade goes is an empirical question this project has not
     measured yet.
+
+    `qrel_doc_ids` is the raw, un-canonicalised version of `positives` and is
+    read only by the `twins_blocked` counter, never by the exclusion -- the
+    mined set is identical whether it is passed or not. It is needed because
+    `positives` cannot distinguish "this candidate IS the judged document" from
+    "this candidate is a twin of it": when the qrel names the preprint, the
+    cluster representative is the published record (`rebuild_canonical_docs`
+    prefers non-PPR), so a candidate that is the published twin has a doc_id
+    that appears in `positives` while never having been judged. Omitted, the
+    counter falls back to assuming raw ids and cluster ids coincide, which is
+    what it silently assumed before.
     """
     blocked = {to_canonical(d, canonical_map) for d in exclude_docs}
+    judged = set(positives) if qrel_doc_ids is None else set(qrel_doc_ids)
     seen: set[int] = set()
     out: list[Candidate] = []
 
@@ -172,7 +191,7 @@ def select_hard_negatives(
             break
         cluster = to_canonical(cand.doc_id, canonical_map)
         if cluster in positives:
-            if stats is not None and cand.doc_id not in positives:
+            if stats is not None and cand.doc_id not in judged:
                 stats.twins_blocked += 1
             continue
         if cluster in blocked:
@@ -190,7 +209,7 @@ def select_hard_negatives(
 def build_pairs(
     query_id: int,
     query_text: str,
-    qrel_doc_ids: Sequence[int],
+    qrels: Mapping[int, int],
     candidates: Sequence[Candidate],
     canonical_map: Mapping[int, int],
     fallback_passages: Mapping[int, Candidate],
@@ -202,6 +221,15 @@ def build_pairs(
 ) -> list[TrainingPair]:
     """Turn one query's qrels + retrieval run into labelled pairs.
 
+    `qrels` is the graded `{doc_id: relevance}` mapping `load_eval_set` returns,
+    not a bare list of judged documents, because only the grade separates "cited
+    / relevant" from "looked at and rejected". The scale is 0-3 with 0 meaning
+    IRRELEVANT (`schema.sql:144`), so a doc_id being *present* in the qrels says
+    nothing about its label -- `evaluate_arm` reads `rel > 0` and so does this.
+    Citation-derived qrels are all relevance 1, so the filter is inert today; it
+    exists so that the first hand-judged non-match does not arrive as a
+    label-1.0 positive, which is a silent poisoning rather than an error.
+
     Positives need a *passage*, but qrels name *documents*. Where the positive
     document turned up in the candidate pool, its retrieved passage is used --
     that is the realistic case the reranker must fix, the right paper present
@@ -209,12 +237,18 @@ def build_pairs(
     case) the document's lead passage from `fallback_passages` stands in.
 
     A query with no usable negatives contributes nothing: positives alone give
-    the loss no contrast and just bias the model toward predicting 1.
+    the loss no contrast and just bias the model toward predicting 1. Neither
+    does a query with no usable positive. Both return `[]`, and each bumps its
+    own counter on `stats` -- the caller sees only the empty list and cannot
+    tell them apart, so the attribution has to be made here. Negatives are
+    selected first, so a query with neither is counted once, as
+    `queries_without_negatives`.
 
     Selection is deterministic -- positives ordered by doc_id, negatives by
     retrieval rank -- so two mining runs over the same database agree.
     """
-    positives = positive_clusters(qrel_doc_ids, canonical_map)
+    positive_doc_ids = sorted(d for d, rel in qrels.items() if rel > 0)
+    positives = positive_clusters(positive_doc_ids, canonical_map)
 
     negatives = select_hard_negatives(
         candidates,
@@ -224,8 +258,11 @@ def build_pairs(
         exclude_docs=exclude_docs,
         skip_top_n=skip_top_n,
         stats=stats,
+        qrel_doc_ids=positive_doc_ids,
     )
     if not negatives:
+        if stats is not None:
+            stats.queries_without_negatives += 1
         return []
 
     # Best retrieved passage per positive cluster: first in rank order wins.
@@ -237,7 +274,7 @@ def build_pairs(
 
     pos_pairs: list[TrainingPair] = []
     used_clusters: set[int] = set()
-    for doc_id in sorted(set(qrel_doc_ids)):
+    for doc_id in positive_doc_ids:
         if len(pos_pairs) >= max_positives:
             break
         cluster = to_canonical(doc_id, canonical_map)
@@ -264,6 +301,8 @@ def build_pairs(
         )
 
     if not pos_pairs:
+        if stats is not None:
+            stats.queries_without_positives += 1
         return []
 
     neg_pairs = [
@@ -383,8 +422,13 @@ def mine_training_pairs(
 
     # One round-trip for every positive that retrieval might miss, rather than
     # one per query: recall is ~12%, so most positives take the fallback path.
+    # Only relevance > 0 can become a positive, so a judged-irrelevant document
+    # needs no fallback passage -- fetching one would be dead weight.
     lead_passages = load_lead_passages(
-        d for item in eval_set for d in item["qrels"]
+        d
+        for item in eval_set
+        for d, rel in item["qrels"].items()
+        if rel > 0
     )
 
     stats = MiningStats()
@@ -403,7 +447,7 @@ def mine_training_pairs(
         got = build_pairs(
             query_id=item["query_id"],
             query_text=item["query_text"],
-            qrel_doc_ids=list(item["qrels"]),
+            qrels=item["qrels"],
             candidates=candidates,
             canonical_map=canonical_map,
             fallback_passages=lead_passages,
@@ -413,11 +457,11 @@ def mine_training_pairs(
             skip_top_n=skip_top_n_negatives,
             stats=stats,
         )
+        # `build_pairs` books the drop-out reason itself; from here an empty
+        # result is indistinguishable between "no negatives" and "no positive".
         if got:
             stats.queries_used += 1
             pairs.extend(got)
-        else:
-            stats.queries_without_negatives += 1
 
         if progress_every and i % progress_every == 0:
             log.info("mined %d/%d queries -> %d pairs", i, len(eval_set), len(pairs))
